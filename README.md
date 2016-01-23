@@ -13,7 +13,6 @@ Compiler errors are more prominent with the failing text row highlighted.
 The multi-caret feature has a working basic functionality, but can be improved though.
 
 
-
 ## Working features
 - New tab (Ctrl + N)
 - Open file (Ctrl + O).
