@@ -58,7 +58,8 @@ Function DrawEditorTabs(x,y)
 	base_y	= y+ME_ChrH+12
 	x_add	= 0
 	For tab.EditorTab = Each EditorTab
-		width	= TextWidth(tab\file_name)+20
+		label$	= tab\file_name + String(" *", EditorGetOption(tab\editor, "dirty"))
+		width	= TextWidth(label)+20
 		hover	= BoxOverlap(x+x_add,y,width,base_y-y, MouseX(),MouseY(),1,1)
 		height	= ME_ChrH + 10 + 2 * (tab\active Or hover)
 		Color cbBlack
@@ -73,7 +74,7 @@ Function DrawEditorTabs(x,y)
 			Box x+x_add+1, base_y-height+1, width-2,height-2
 		EndIf
 		Color cbBlack
-		Text x+x_add+10,base_y-ME_ChrH-5, tab\file_name
+		Text x+x_add+10,base_y-ME_ChrH-5, label
 		If hover And MouseHit(1) Then ActivateEditorTab(tab\id)
 		If tab\flag Then
 			Color cbRed

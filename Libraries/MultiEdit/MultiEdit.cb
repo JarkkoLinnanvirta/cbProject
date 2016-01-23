@@ -21,10 +21,15 @@ Function EditorLoadText(editor_id, file_path$)
 	ME_NewCaret(editor_id, editor\first_line_id, 0)
 EndFunction
 
-Function EditorSaveText(editor_id, file_path$)
+
+//Saves the editor content to a plaintext file using Windows line ends.
+//The optional parameter drop_dirty_flag can be used to decide whether to remove the marking that the editor contains unsaved
+//work or not to remove. The default is to remove the flag.
+Function EditorSaveText(editor_id, file_path$, drop_dirty_flag=1)
 	file			= OpenToWrite(file_path)
 	editor.ME_Editor= editor_id
 	start			= True
+	editor\dirty	= False
 	For row.ME_Line = Each ME_Line
 		If start Then
 			start	= False
@@ -94,6 +99,8 @@ Function EditorSetOption(editor_id, key$, value$)
 		editor\width = value
 	Case "height"
 		editor\height = height
+	Case "dirty"
+		editor\dirty = value = True
 	Default
 		If key = "show-l"+"ine-numbers" Then
 			editor\show_line_numbers = value
@@ -109,6 +116,8 @@ Function EditorGetOption(editor_id, key$)
 		Return editor\width
 	Case "height"
 		Return editor\height
+	Case "dirty"
+		Return editor\dirty
 	Default:
 		If key = "show-l"+"ine-numbers" Then
 			Return editor\show_line_numbers

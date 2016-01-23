@@ -24,34 +24,35 @@ Type ME_Editor
 	//Base Data
 	Field id
 	Field first_line_id
-	Field first_visible_line_number
-	Field count_lines
+	Field first_visible_line_number		As Short
+	Field count_lines					As Short
 	Field current_action_log_id
 	
 	//Settings
-	Field width
-	Field height
-	Field show_line_numbers
-	Field tab_length
+	Field width							As Short
+	Field height						As Short
+	Field show_line_numbers				As Byte
+	Field tab_length					As Byte
 	Field current_line_background_colour
 	Field highlight_colour
-	Field home_after_tabs					//If True, pressing the Home key puts the caret To the End of any tabulators placed in the beginning of the Line. A second press puts the caret To the absolute beginning
-	Field auto_indent
-	Field max_undo_levels
+	Field home_after_tabs				As Byte		//If True, pressing the Home key puts the caret To the End of any tabulators placed in the beginning of the Line. A second press puts the caret To the absolute beginning
+	Field auto_indent					As Byte
+	Field max_undo_levels				As Short
+	Field dirty							As Byte		//Does the opened file have modifications. The nature of this is actually Not a setting, but it can be Read And changed via the settings functions.
 EndType
 
 Type ME_Line
 	//Base Data
 	Field id
 	Field editor_id
-	Field line_number
+	Field line_number					As Short
 	
 	//Content
 	Field content_text$
 	Field tabulated_text$
 	Field content_image
 	Field highlight_image
-	Field redraw
+	Field redraw						As Byte
 EndType
 
 Type ME_Caret
@@ -61,18 +62,18 @@ Type ME_Caret
 	Field line_id
 	
 	//Position And highlight
-	Field position
-	Field lean_position		//When moving up/down rows, TRY To go To this position every Time possible.
-	Field draw_position		//Tabulators in the source code translate carets towards Right from their "real" position
-	Field tail_position		//A tail is used when Text is highlighted
-	Field tail_line_id		//When Text is Not hightlighted, all tail properties have a value of 0.
+	Field position						As Short
+	Field lean_position					As Short	//When moving up/down rows, TRY To go To this position every Time possible.
+	Field draw_position					As Short	//Tabulators in the source code translate carets towards Right from their "real" position
+	Field tail_position					As Short	//A tail is used when Text is highlighted
+	Field tail_line_id								//When Text is Not hightlighted, all tail properties have a value of 0.
 EndType
 
 Type ME_Colour
 	Field id
-	Field r
-	Field g
-	Field b
+	Field r								As Short
+	Field g								As Short
+	Field b								As Short
 EndType
 
 Type ME_Clipboard
