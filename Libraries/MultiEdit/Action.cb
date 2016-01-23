@@ -26,11 +26,32 @@ Function ME_PerformAction(editor_id, action$, parameter$="", force_new_action_lo
 	
 	ME_DeleteActionsAfterCurrent(editor_id)
 	
+	
+
+	Select action
+	Case "DeleteBefore"
+		For caret.ME_Caret = Each ME_Caret
+			If caret\editor_id = editor_id Then
+				row.ME_Line			= caret\line_id
+				remove$				= Mid(row\content_text, caret\position, 1)
+				action_log\parameter= remove+action_log\parameter
+			EndIf
+		Next caret
+	Case "DeleteAfter"
+		For caret.ME_Caret = Each ME_Caret
+			If caret\editor_id = editor_id Then
+				row.ME_Line			= caret\line_id
+				remove$				= Mid(row\content_text, caret\position+1, 1)
+				action_log\parameter= action_log\parameter+remove
+			EndIf
+		Next caret
+	EndSelect
+	
 	ME_DoAction(editor_id, action, parameter)
 	
 	If existed_before Then
 		//Combine actions in the action Log
-		Select Upper(Left(action,1))+Lower(Mid(action,2))
+		Select action
 		Case "Insert"
 			action_log\parameter + parameter
 		EndSelect
@@ -46,11 +67,33 @@ Function ME_DoAction(editor_id, action$, parameter$)
 			row.ME_Line = caret\line_id
 		
 			//Check what action needs To be performed
-			Select Upper(Left(action,1))+Lower(Mid(action,2))
+			Select action
 			Case "Insert"
-				row\content_text= StrInsert(row\content_text, caret\position, parameter)
-				row\redraw		= True
-				ME_PanCarets(row\id, caret\position, "Right", Len(parameter))
+				ME_InsertString(row\id, caret\id, parameter)
+				'row\content_text= StrInsert(row\content_text, caret\position, parameter)
+				'row\redraw		= True
+				'ME_PanCarets(row\id, caret\position, "Right", Len(parameter))
+			Case "DeleteBefore"
+				If caret\position > 0 Then
+					remove$			= Mid(row\content_text, caret\position, 1)
+					row\content_text= StrRemove(row\content_text, caret\position, 1)
+					row\redraw		= True
+					ME_PanCarets(row\id, caret\position, "Left")
+				ElseIf Before(row) <> NULL
+					line2.ME_Line		= Before(row)
+					caret\position		= Len(line2\content_text)
+					caret\lean_position= caret\position
+					ME_CombineLines(line2, row\id) //This takes care of moving the caret To the previous Line
+				EndIf
+			Case "DeleteAfter"
+				If caret\position < Len(row\content_text) Then
+					row\content_text = StrRemove(row\content_text, caret\position+1, 1)
+					row\redraw		= True
+					ME_PanCarets(row\id, caret\position+1, "Left") //Pan other carets Left, keep thisone in place
+				ElseIf After(row) <> NULL
+					line2.ME_Line = After(row)
+					ME_CombineLines(row\id, line2) //This takes care of moving the caret To the previous Line
+				EndIf
 			EndSelect
 		EndIf
 	Next caret
@@ -77,10 +120,18 @@ Function ME_UndoAction(editor_id)
 		row.ME_Line		= caret\line_id
 		
 		//Check what action needs To be undoed
-		Select Upper(Left(action_log\action,1))+Lower(Mid(action_log\action,2))
+		Select action_log\action
 		Case "Insert"
 			remove$			= action_log\parameter
 			row\content_text= StrRemove(row\content_text, caret\position+1, Len(remove))
+			row\redraw		= True
+		Case "DeleteBefore"
+			add$			= action_log\parameter
+			row\content_text= StrInsert(row\content_text, caret\position-Len(add), add)
+			row\redraw		= True
+		Case "DeleteAfter"
+			add$			= action_log\parameter
+			row\content_text= StrInsert(row\content_text, caret\position, add)
 			row\redraw		= True
 		EndSelect
 	Next i

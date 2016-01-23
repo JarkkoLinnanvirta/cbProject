@@ -47,7 +47,7 @@ Function ME_UpdateEditor(editor_id, x,y)
 	For caret.ME_Caret = Each ME_Caret
 		If caret\editor_id = editor_id Then
 			el = caret\line_id
-			'ME_UpdateCaret(caret\id)
+			ME_UpdateCaret(caret\id)
 			If copy Then ME_AddToClipboard(ME_GetCaretSelectedText(caret\id))
 		EndIf
 	Next caret
@@ -64,42 +64,8 @@ Function UpdateEditors(getkey_value)
 	ME_UpdateClipboard()
 	UpdateHotKey()
 	
-	If HotKey(cbKeyLeft) Or HotKey(cbKeyLShift,cbKeyLeft) Then				//Left
-		'ME_UpdateCaretTail(caret\id, cbKeyLeft)
-		'ME_MoveCaret(caret_id, "Left")
-		'ME_UpdateCaretHighlights(caret)
-	ElseIf HotKey(cbKeyRight) Or HotKey(cbKeyLShift,cbKeyRight) Then		//Right
-		'ME_UpdateCaretTail(caret\id, cbKeyRight)
-		'ME_MoveCaret(caret_id, "Right")
-		'ME_UpdateCaretHighlights(caret)
-	ElseIf HotKey(cbKeyDown) Or HotKey(cbKeyLShift, cbKeyDown) Then			//DOWN
-		'ME_UpdateCaretTail(caret\id, cbKeyDown)
-		'ME_MoveCaret(caret_id, "down")
-		'ME_UpdateCaretHighlights(caret)
-	ElseIf HotKey(cbKeyUp) Or HotKey(cbKeyLShift, cbKeyUp) Then				//UP
-		'ME_UpdateCaretTail(caret\id, cbKeyUp)
-		'ME_MoveCaret(caret_id, "up")
-		'ME_UpdateCaretHighlights(caret)
-	ElseIf HotKey(cbKeyHome) Then											//HOME
-		'tabs = ME_IndentLevel(row\id)
-		'If caret\position = 0 Then
-		'	caret\position = tabs
-		'ElseIf caret\position > tabs Then
-		'	caret\position = 0
-		'	If editor\home_after_tabs Then caret\position = tabs
-		'Else
-		'	caret\position = 0
-		'EndIf
-		'caret\lean_position= caret\position
-		'ME_CalculateCaretDrawingPosition(caret)
-	ElseIf HotKey(cbKeyEnd) Then											//End
-		'caret\position		= Len(row\content_text)
-		'caret\lean_position= caret\position
-		'ME_CalculateCaretDrawingPosition(caret)
-	ElseIf HotKey(cbKeyTab) Then											//TAB
-		'row\content_text = StrInsert(row\content_text, caret\position, Chr(9))
-		'row\redraw		= True
-		'ME_PanCarets(row\id, caret\position, "Right")
+	If HotKey(cbKeyTab) Then											//TAB
+		ME_PerformAction(ActiveEditor, "Insert", Chr(9))
 	ElseIf HotKey(cbKeyEnter) Then											//ENTER
 		'indent				= ME_IndentLevel(row\id)
 		'caret\line_id		= ME_SplitLine(row\id, caret\position)
@@ -107,26 +73,11 @@ Function UpdateEditors(getkey_value)
 		'caret\position		= ME_IF(editor\auto_indent, indent, 0)
 		'caret\lean_position	= 0
 		'ME_CalculateCaretDrawingPosition(caret)
+		ME_PerformAction(ActiveEditor, "Insert", Chr(13)+Chr(10))
 	ElseIf HotKey(cbKeyBackspace) Then										//BACKSPACE
-		'If caret\position > 0 Then
-		'	row\content_text = StrRemove(row\content_text, caret\position, 1)
-		'	row\redraw		= True
-		'	ME_PanCarets(row\id, caret\position, "Left")
-		'ElseIf Before(row) <> NULL
-		'	line2.ME_Line		= Before(row)
-		'	caret\position		= Len(line2\content_text)
-		'	caret\lean_position= caret\position
-		'	ME_CombineLines(line2, row\id) //This takes care of moving the caret To the previous Line
-		'EndIf
+		ME_PerformAction(ActiveEditor, "DeleteBefore")
 	ElseIf HotKey(cbKeyDel) Then											//Delete
-		'If caret\position < Len(row\content_text) Then
-		'	row\content_text = StrRemove(row\content_text, caret\position+1, 1)
-		'	row\redraw		= True
-		'	ME_PanCarets(row\id, caret\position+1, "Left") //Pan other carets Left, keep thisone in place
-		'ElseIf After(row) <> NULL
-		'	line2.ME_Line = After(row)
-		'	ME_CombineLines(row\id, line2) //This takes care of moving the caret To the previous Line
-		'EndIf
+		ME_PerformAction(ActiveEditor, "DeleteAfter")
 	ElseIf HotKey(cbKeyLControl, cbKeyZ) Then
 		ME_UndoAction(ActiveEditor)
 	ElseIf HotKey(cbKeyLControl, cbKeyY) Then
@@ -139,7 +90,6 @@ Function UpdateEditors(getkey_value)
 		If CountKeys() = 1 Then	//Ensure we are Not pressing multiple keys simultaneously (= hotkeys)
 			If (ME_Input >= 32 And ME_Input <= 126) Or (ME_Input = 145) Or (ME_Input = 146) Or (ME_Input >= 160) Then
 				ME_PerformAction(ActiveEditor, "Insert", ME_InputChr)
-				
 			EndIf
 		EndIf
 	Else

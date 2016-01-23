@@ -97,6 +97,26 @@ Function ME_SplitLine(line_id, position)
 	Return line2\id
 EndFunction
 
+Function ME_InsertString(line_id, caret_id, stri$)
+	caret.ME_Caret	= caret_id
+	stri			= Replace(stri, Chr(13)+Chr(10), Chr(13))
+	stri			= Replace(stri, Chr(10), Chr(13))
+	row.ME_Line		= line_id
+	editor.ME_Editor= row\editor_id
+	For i = 1 To CountWords2(stri, Chr(13))
+		If i > 1 Then
+			indent			= ME_IndentLevel(row\id)
+			row				= ME_SplitLine(row\id, caret\position)
+			caret\line_id	= row
+			caret\position	= ME_IF(editor\auto_indent, indent, 0)
+		EndIf
+		substring$		= GetWord2(stri, i, Chr(13))
+		row\content_text= StrInsert(row\content_text, caret\position, substring)
+		row\redraw		= True
+		ME_PanCarets(row\id, caret\position, "Right", Len(substring))
+	Next i
+EndFunction
+
 Function ME_UpdateLineNumbers()
 	For editor.ME_Editor = Each ME_Editor
 		editor\first_line_id= 0

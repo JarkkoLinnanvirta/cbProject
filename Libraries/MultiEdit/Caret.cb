@@ -62,46 +62,6 @@ Function ME_UpdateCaret(caret_id)
 		caret\position		= Len(row\content_text)
 		caret\lean_position= caret\position
 		ME_CalculateCaretDrawingPosition(caret)
-	ElseIf HotKey(cbKeyTab) Then											//TAB
-		row\content_text = StrInsert(row\content_text, caret\position, Chr(9))
-		row\redraw		= True
-		ME_PanCarets(row\id, caret\position, "Right")
-	ElseIf HotKey(cbKeyEnter) Then											//ENTER
-		indent				= ME_IndentLevel(row\id)
-		caret\line_id		= ME_SplitLine(row\id, caret\position)
-		row					= caret\line_id
-		caret\position		= ME_IF(editor\auto_indent, indent, 0)
-		caret\lean_position	= 0
-		ME_CalculateCaretDrawingPosition(caret)
-	ElseIf HotKey(cbKeyBackspace) Then										//BACKSPACE
-		If caret\position > 0 Then
-			row\content_text = StrRemove(row\content_text, caret\position, 1)
-			row\redraw		= True
-			ME_PanCarets(row\id, caret\position, "Left")
-		ElseIf Before(row) <> NULL
-			line2.ME_Line		= Before(row)
-			caret\position		= Len(line2\content_text)
-			caret\lean_position= caret\position
-			ME_CombineLines(line2, row\id) //This takes care of moving the caret To the previous Line
-		EndIf
-	ElseIf HotKey(cbKeyDel) Then											//Delete
-		If caret\position < Len(row\content_text) Then
-			row\content_text = StrRemove(row\content_text, caret\position+1, 1)
-			row\redraw		= True
-			ME_PanCarets(row\id, caret\position+1, "Left") //Pan other carets Left, keep thisone in place
-		ElseIf After(row) <> NULL
-			line2.ME_Line = After(row)
-			ME_CombineLines(row\id, line2) //This takes care of moving the caret To the previous Line
-		EndIf
-	ElseIf ME_Input															//Input CHARACTER
-		If CountKeys() = 1 Then	//Ensure we are Not pressing multiple keys simultaneously (= hotkeys)
-			If (ME_Input >= 32 And ME_Input <= 126) Or (ME_Input = 145) Or (ME_Input = 146) Or (ME_Input >= 160) Then
-				
-				row\content_text = StrInsert(row\content_text, caret\position, ME_InputChr)
-				row\redraw		= True
-				ME_PanCarets(row\id, caret\position, "Right")
-			EndIf
-		EndIf
 	Else
 		blink = False //Blink at normal timing
 	EndIf
