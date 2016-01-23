@@ -3,6 +3,17 @@ An editor for the Coolbasic programming language made with CoolBasic itself. I h
 
 NOTE that this is very incomplete at the moment! (Still has something that works :) ). No proimises are made whether the development will continue.
 
+![Screenshot](Screenshot1.png)
+Syntax highlighting has a few bugs, but is quite nice still :).
+
+![Screenshot](Screenshot2.png)
+Compiler errors are more prominent with the failing text row highlighted.
+
+![Screenshot](Screenshot3.png)
+The multi-caret feature has a working basic functionality, but can be improved though.
+
+
+
 ## Working features
 - New tab (Ctrl + N)
 - Open file (Ctrl + O).
