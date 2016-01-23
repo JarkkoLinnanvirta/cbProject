@@ -1,0 +1,7 @@
+
+
+Function DialogOpenFile()
+	filter$= _t(T_FILE_CBSource)+" *.cb|*.cb|"+_t(T_FILE_CBList)+" *.cbf|*.cbf|"+_t(T_FILE_All)+" *.*|*.*;*|"
+	result = FileDialog(OPEN_FILE_DLG, "*.cb", "", filter)
+	If result = IDOK Then Return FileDialogData(FD_FULLNAME) Else Return ""
+EndFunction

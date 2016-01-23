@@ -1,0 +1,138 @@
+
+
+//Processes an action in the editor and creates a log entry for it in order to enable undo/redo/repeat operations.
+Function ME_PerformAction(editor_id, action$, parameter$="", force_new_action_log=0)
+	editor.ME_Editor = editor_id
+	
+	If ME_CutActionLog Then
+		force_new_action_log= True
+		ME_CutActionLog		= False
+	EndIf
+	
+	//If the current action Log item has the same action, use that one. If Not (Or If there is no action Log items at all For this editor), create a New one.
+	existed_before = True
+	If Not editor\current_action_log_id Then
+		editor\current_action_log_id= ME_NewActionLog(editor_id, action, parameter)
+		action_log.ME_ActionLog		= editor\current_action_log_id
+		existed_before				= False
+	Else
+		action_log.ME_ActionLog = editor\current_action_log_id
+		If action_log\action <> action Or force_new_action_log Then
+			existed_before				= False
+			editor\current_action_log_id= ME_NewActionLog(editor_id, action, parameter)
+			action_log.ME_ActionLog		= editor\current_action_log_id
+		EndIf
+	EndIf
+	
+	ME_DeleteActionsAfterCurrent(editor_id)
+	
+	ME_DoAction(editor_id, action, parameter)
+	
+	If existed_before Then
+		//Combine actions in the action Log
+		Select Upper(Left(action,1))+Lower(Mid(action,2))
+		Case "Insert"
+			action_log\parameter + parameter
+		EndSelect
+	EndIf
+EndFunction
+
+//The function that actually does the action. Does not do any logging.
+Function ME_DoAction(editor_id, action$, parameter$)
+	editor.ME_Editor = editor_id
+	
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then
+			row.ME_Line = caret\line_id
+		
+			//Check what action needs To be performed
+			Select Upper(Left(action,1))+Lower(Mid(action,2))
+			Case "Insert"
+				row\content_text= StrInsert(row\content_text, caret\position, parameter)
+				row\redraw		= True
+				ME_PanCarets(row\id, caret\position, "Right", Len(parameter))
+			EndSelect
+		EndIf
+	Next caret
+EndFunction
+
+//Undoes the last action and updates the editor's log pointer to reflect the undo
+Function ME_UndoAction(editor_id)
+	editor.ME_Editor = editor_id	
+	If Not editor\current_action_log_id Then Return False
+	action_log.ME_ActionLog = editor\current_action_log_id
+	
+	For i = 1 To CountWords(action_log\caret_ids)
+		caret.ME_Caret	= GetWord(action_log\caret_ids, i)
+		
+		'MakeError "caret_id "+GetWord(action_log\caret_ids, i)
+		
+		//Reset caret attributes To what they were
+		caret\line_id	= GetWord(action_log\caret_line_ids, i)
+		caret\position	= GetWord(action_log\caret_positions, i)
+		ME_CalculateCaretDrawingPosition(caret\id)
+		
+		'MakeError caret\line_id + " " + caret\position
+		
+		row.ME_Line		= caret\line_id
+		
+		//Check what action needs To be undoed
+		Select Upper(Left(action_log\action,1))+Lower(Mid(action_log\action,2))
+		Case "Insert"
+			remove$			= action_log\parameter
+			row\content_text= StrRemove(row\content_text, caret\position+1, Len(remove))
+			row\redraw		= True
+		EndSelect
+	Next i
+	
+	If Before(action_log) <> NULL Then editor\current_action_log_id = Before(action_log) Else editor\current_action_log_id = off
+EndFunction
+
+Function ME_RedoAction(editor_id)
+	editor.ME_Editor = editor_id
+	If Not editor\current_action_log_id Then
+		action_log.ME_ActionLog = First(ME_ActionLog)
+	Else
+		action_log.ME_ActionLog = After(ConvertToType(editor\current_action_log_id))
+	EndIf
+	If NULL = action_log Then Return False
+	ME_DoAction(editor_id, action_log\action, action_log\parameter)
+	editor\current_action_log_id = action_log\id
+EndFunction
+
+//Does the latest action again, for example if you write "abc " and invoke RepeatAction, you will have "abc abc " in the editor.
+Function ME_RepeatAction(editor_id)
+	editor.ME_Editor = editor_id
+	If Not editor\current_action_log_id Then Return False
+	action_log.ME_ActionLog = editor\current_action_log_id
+	ME_PerformAction(editor_id, action_log\action, action_log\parameter, True)
+EndFunction
+
+Function ME_NewActionLog(editor_id, action$, parameter$)
+	editor.ME_Editor			= editor_id
+	action_log.ME_ActionLog 	= New(ME_ActionLog)
+	action_log\id				= ConvertToInteger(action_log)
+	action_log\editor_id		= editor_id
+	action_log\action			= action
+	action_log\parameter		= parameter
+	editor\current_action_log_id= action_log\id
+	
+	//Save caret parameters
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then
+			If action_log\caret_ids Then action_log\caret_ids + " " : action_log\caret_line_ids + " " : action_log\caret_positions + " "
+			action_log\caret_ids		+ caret\id
+			action_log\caret_line_ids	+ caret\line_id
+			action_log\caret_positions	+ caret\position
+		EndIf
+	Next caret
+	Return action_log\id
+EndFunction
+
+Function ME_DeleteActionsAfterCurrent(editor_id)
+	editor.ME_Editor = editor_id
+	If Not editor\current_action_log_id Then Return False
+	While null <> After(ConvertToType(editor\current_action_log_id))
+		Delete After(ConvertToType(editor\current_action_log_id))
+	Wend
+EndFunction

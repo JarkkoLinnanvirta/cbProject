@@ -1,0 +1,274 @@
+
+
+//
+// PRIVATE FUNCTIONS
+//
+
+
+Function ME_DeleteCarets(editor_id)
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then Delete caret
+	Next caret
+EndFunction
+
+
+Function ME_NewCaret(editor_id, line_id, position)
+	Debug("me_newcaret start")
+	caret.ME_Caret	= New(ME_Caret)
+	caret\id			= ConvertToInteger(caret)
+	caret\editor_id	= editor_id
+	caret\line_id		= line_id
+	caret\position		= position
+	caret\lean_position= position
+	Debug("me_newcaret end")
+	Return caret\id
+EndFunction
+
+Function ME_UpdateCaret(caret_id)
+	Debug("me_updatecaret start")
+	caret.ME_Caret= caret_id
+	row.ME_Line		= caret\line_id
+	editor.ME_Editor= caret\editor_id
+	blink			= True	//If some HotKey is pressed Or some letter typed, change blink timing so that the caret is visible After the keypress
+	If HotKey(cbKeyLeft) Or HotKey(cbKeyLShift,cbKeyLeft) Then				//Left
+		ME_UpdateCaretTail(caret\id, cbKeyLeft)
+		ME_MoveCaret(caret_id, "Left")
+		ME_UpdateCaretHighlights(caret)
+	ElseIf HotKey(cbKeyRight) Or HotKey(cbKeyLShift,cbKeyRight) Then		//Right
+		ME_UpdateCaretTail(caret\id, cbKeyRight)
+		ME_MoveCaret(caret_id, "Right")
+		ME_UpdateCaretHighlights(caret)
+	ElseIf HotKey(cbKeyDown) Or HotKey(cbKeyLShift, cbKeyDown) Then			//DOWN
+		ME_UpdateCaretTail(caret\id, cbKeyDown)
+		ME_MoveCaret(caret_id, "down")
+		ME_UpdateCaretHighlights(caret)
+	ElseIf HotKey(cbKeyUp) Or HotKey(cbKeyLShift, cbKeyUp) Then				//UP
+		ME_UpdateCaretTail(caret\id, cbKeyUp)
+		ME_MoveCaret(caret_id, "up")
+		ME_UpdateCaretHighlights(caret)
+	ElseIf HotKey(cbKeyHome) Then											//HOME
+		tabs = ME_IndentLevel(row\id)
+		If caret\position = 0 Then
+			caret\position = tabs
+		ElseIf caret\position > tabs Then
+			caret\position = 0
+			If editor\home_after_tabs Then caret\position = tabs
+		Else
+			caret\position = 0
+		EndIf
+		caret\lean_position= caret\position
+		ME_CalculateCaretDrawingPosition(caret)
+	ElseIf HotKey(cbKeyEnd) Then											//End
+		caret\position		= Len(row\content_text)
+		caret\lean_position= caret\position
+		ME_CalculateCaretDrawingPosition(caret)
+	ElseIf HotKey(cbKeyTab) Then											//TAB
+		row\content_text = StrInsert(row\content_text, caret\position, Chr(9))
+		row\redraw		= True
+		ME_PanCarets(row\id, caret\position, "Right")
+	ElseIf HotKey(cbKeyEnter) Then											//ENTER
+		indent				= ME_IndentLevel(row\id)
+		caret\line_id		= ME_SplitLine(row\id, caret\position)
+		row					= caret\line_id
+		caret\position		= ME_IF(editor\auto_indent, indent, 0)
+		caret\lean_position	= 0
+		ME_CalculateCaretDrawingPosition(caret)
+	ElseIf HotKey(cbKeyBackspace) Then										//BACKSPACE
+		If caret\position > 0 Then
+			row\content_text = StrRemove(row\content_text, caret\position, 1)
+			row\redraw		= True
+			ME_PanCarets(row\id, caret\position, "Left")
+		ElseIf Before(row) <> NULL
+			line2.ME_Line		= Before(row)
+			caret\position		= Len(line2\content_text)
+			caret\lean_position= caret\position
+			ME_CombineLines(line2, row\id) //This takes care of moving the caret To the previous Line
+		EndIf
+	ElseIf HotKey(cbKeyDel) Then											//Delete
+		If caret\position < Len(row\content_text) Then
+			row\content_text = StrRemove(row\content_text, caret\position+1, 1)
+			row\redraw		= True
+			ME_PanCarets(row\id, caret\position+1, "Left") //Pan other carets Left, keep thisone in place
+		ElseIf After(row) <> NULL
+			line2.ME_Line = After(row)
+			ME_CombineLines(row\id, line2) //This takes care of moving the caret To the previous Line
+		EndIf
+	ElseIf ME_Input															//Input CHARACTER
+		If CountKeys() = 1 Then	//Ensure we are Not pressing multiple keys simultaneously (= hotkeys)
+			If (ME_Input >= 32 And ME_Input <= 126) Or (ME_Input = 145) Or (ME_Input = 146) Or (ME_Input >= 160) Then
+				
+				row\content_text = StrInsert(row\content_text, caret\position, ME_InputChr)
+				row\redraw		= True
+				ME_PanCarets(row\id, caret\position, "Right")
+			EndIf
+		EndIf
+	Else
+		blink = False //Blink at normal timing
+	EndIf
+	If blink Then ME_CaretBlinkTimer = Timer()
+	Debug("me_updatecaret end")
+EndFunction
+
+Function ME_MoveCaret(caret_id, direction$)
+	Debug("me_movecaret start")
+	caret.ME_Caret	= caret_id
+	direction		= Lower(direction)
+	row.ME_Line		= caret\line_id
+	old_line_ids$	= ME_GetCaretLines(caret\id)
+	If direction = "down" Or direction = "up" Then
+		If (direction = "down" And After(row) = NULL) Or (direction = "up" And Before(row) = NULL) Then Return False
+		old_tabulated_position	= ME_TabulatedPosition(caret\line_id, caret\lean_position)
+		caret\line_id			= ME_IF(direction="up", Before(row), After(row))
+		new_tabulated_position	= ME_TabulatedPosition(caret\line_id, caret\lean_position)
+		difference				= old_tabulated_position-new_tabulated_position
+		row						= ME_IF(direction="up", Before(row), After(row))
+		caret\position			= Min(caret\lean_position+difference, Len(row\content_text))
+		caret\lean_position		+ difference
+	ElseIf direction = "le"+"ft" Then
+		If caret\position > 0 Then
+			caret\position - 1
+		Else
+			ME_MoveCaret(caret_id, "up")
+			row				= caret\line_id
+			caret\position	= Len(row\content_text)
+		EndIf
+		caret\lean_position = caret\position
+	ElseIf direction ="ri"+"ght" Then
+		If caret\position < Len(row\content_text) Then
+			caret\position + 1
+		Else
+			ME_MoveCaret(caret_id, "down")
+			row				= caret\line_id
+			caret\position	= 0
+		EndIf
+		caret\lean_position = caret\position
+	EndIf
+	ME_UpdateLinesHighlight(old_line_ids)
+	ME_CalculateCaretDrawingPosition(caret\id)
+	Debug("me_movecaret end")
+EndFunction
+
+//Moves all carets that are on a certain line to left or right
+//This is called after inserting or removing characters to/from the specified line, so checks about line length are not needed.
+Function ME_PanCarets(line_id, position, direction$, amount=1)
+	Debug("me_pancarets start")
+	For caret.ME_Caret = Each ME_Caret
+		If caret\line_id = line_id Then
+			If Lower(direction) = "le"+"ft" Then
+				If caret\position >= position Then
+					caret\position		- amount
+					caret\lean_position= caret\position
+					ME_CalculateCaretDrawingPosition(caret\id)
+				EndIf
+			ElseIf Lower(direction) = "ri"+"ght" Then
+				If caret\position >= position Then
+					caret\position		+ amount
+					caret\lean_position= caret\position
+					ME_CalculateCaretDrawingPosition(caret\id)
+				EndIf
+			EndIf
+		EndIf
+	Next caret
+	Debug("me_pancarets end")
+EndFunction
+
+Function ME_DrawCaret(caret_id, x,y)
+	Debug("me_drawcaret start")
+	caret.ME_Caret = caret_id
+	If (Timer()-ME_CaretBlinkTimer) Mod 1000 < 500 Then
+		Color cbBlack
+		Line x,y, x,y+TextHeight("A")-1
+	EndIf
+	Debug("me_drawcaret end")
+EndFunction
+
+Function ME_CalculateCaretDrawingPosition(caret_id)
+	caret.ME_Caret		= caret_id
+	row.ME_Line			= caret\line_id
+	stri$				= Left(row\content_text, caret\position)
+	editor.ME_Editor	= row\editor_id
+	caret\draw_position	= Len(ME_TabulateText(stri, 4))'editor\tab_length))
+EndFunction
+
+Function ME_UpdateCaretTail(caret_id, check_key)
+	caret.ME_Caret = caret_id
+	If HotKey(cbKeyLShift,check_key) Then
+			If Not caret\tail_line_id Then
+				caret\tail_line_id	= caret\line_id
+				caret\tail_position	= caret\position
+			EndIf
+		Else
+			caret\tail_line_id	= OFF
+			caret\tail_position	= OFF
+		EndIf
+EndFunction
+
+Function ME_GetCaretSelectedText(caret_id)
+	caret.ME_Caret = caret_id
+	If Not caret\tail_line_id Then Return ""
+	
+	
+	If caret\tail_line_id = caret\line_id Then
+		//Single Line highlight
+		row.ME_Line	= caret\line_id
+		start		= Min(caret\position, caret\tail_position)+1
+		stop		= Max(caret\position, caret\tail_position)
+		Return Mid(row\content_text, start, stop-start+1)
+	Else
+		//Multiline highlight
+		result$		= ""
+		line_ids$	= ME_GetCaretLines(caret_id)
+		count_lines	= CountWords(line_ids)
+		For i = 1 To count_lines
+			row.ME_Line = Int(GetWord(line_ids, i))
+			If result Then result = result + Chr(13)+Chr(10)
+			If i = 1 Then
+				start	= Int(ME_IF(row\id=caret\line_id,caret\position,caret\tail_position))+1
+				result	= result + Mid(row\content_text, start)
+			ElseIf i = count_lines Then
+				stop	= ME_IF(row\id=caret\line_id,caret\position,caret\tail_position)
+				result	= result + Left(row\content_text,stop)
+			Else
+				result + row\content_text
+			EndIf
+		Next i
+		Return result
+	EndIf
+EndFunction
+
+Function ME_GetCaretLines(caret_id)
+	caret.ME_Caret	= caret_id
+	If Not caret\tail_line_id Then Return caret\line_id
+	line1.ME_Line	= caret\line_id
+	line2.ME_Line	= caret\tail_line_id
+	start			= True
+	result$			= ""
+	For row.ME_Line = Each ME_Line
+		If start Then
+			start = False
+			If line1\line_number < line2\line_number Then
+				row		= line1\id
+				last_id	= line2\id
+			Else
+				row		= line2\id
+				last_id	= line1\id
+			EndIf
+		EndIf
+		If result Then result + " "
+		result = result + Str(row\id)
+		If row\id = last_id Then Exit
+	Next row
+	Return result
+EndFunction
+
+Function ME_UpdateCaretHighlights(caret_id)
+	caret.ME_Caret	= caret_id
+	line_ids$	= ME_GetCaretLines(caret_id)
+	count_lines	= CountWords(line_ids)
+	For i = 1 To count_lines
+		line_id = Int(GetWord(line_ids, i))
+		ME_UpdateLineHighlight(line_id)
+	Next i
+EndFunction
+
+

@@ -1,0 +1,93 @@
+
+
+//
+// PRIVATE TYPES, GLOBALS, CONSTANTS ETC
+//
+
+Const ME_DEFAULT_TAB_LENGTH		= 4
+Const ME_DEFAULT_UNDO_LEVELS	= 100
+
+Global ME_ChrW		: ME_ChrW = TextWidth("M")
+Global ME_ChrH		: ME_ChrH = TextHeight("M")
+Global ME_Input										//Stores the value of GetKey()
+Global ME_InputChr$
+Global ME_Scroll
+Global ME_CaretBlinkTimer
+Global ME_FlagLineID								//If > 0, contains an ID of a Line that the CBCombiler has raised an error about
+Global ME_FlagPosition								//Starting And
+Global ME_FlagEnd									//ending positions of the flag. Can also mark the whole Line, If CBCombiler didn't give a detail String specifyin the problematic section of the Line
+Global ME_ExportedClipboard$
+Global ME_CutActionLog								//If True, Next action performed in an editor will be forced To start a New Log entry.
+
+
+Type ME_Editor
+	//Base Data
+	Field id
+	Field first_line_id
+	Field first_visible_line_number
+	Field count_lines
+	Field current_action_log_id
+	
+	//Settings
+	Field width
+	Field height
+	Field show_line_numbers
+	Field tab_length
+	Field current_line_background_colour
+	Field highlight_colour
+	Field home_after_tabs					//If True, pressing the Home key puts the caret To the End of any tabulators placed in the beginning of the Line. A second press puts the caret To the absolute beginning
+	Field auto_indent
+	Field max_undo_levels
+EndType
+
+Type ME_Line
+	//Base Data
+	Field id
+	Field editor_id
+	Field line_number
+	
+	//Content
+	Field content_text$
+	Field tabulated_text$
+	Field content_image
+	Field highlight_image
+	Field redraw
+EndType
+
+Type ME_Caret
+	//Base Data
+	Field id
+	Field editor_id
+	Field line_id
+	
+	//Position And highlight
+	Field position
+	Field lean_position		//When moving up/down rows, TRY To go To this position every Time possible.
+	Field draw_position		//Tabulators in the source code translate carets towards Right from their "real" position
+	Field tail_position		//A tail is used when Text is highlighted
+	Field tail_line_id		//When Text is Not hightlighted, all tail properties have a value of 0.
+EndType
+
+Type ME_Colour
+	Field id
+	Field r
+	Field g
+	Field b
+EndType
+
+Type ME_Clipboard
+	Field content$
+EndType
+
+Type ME_ActionLog
+	Field id
+	Field editor_id
+	Field action$
+	Field parameter$
+	
+	//Caret details
+	Field caret_ids$
+	Field caret_line_ids$
+	Field caret_positions$
+EndType
+

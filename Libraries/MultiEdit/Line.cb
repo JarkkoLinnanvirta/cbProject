@@ -1,0 +1,242 @@
+
+
+//
+// PRIVATE FUNCTIONS
+//
+
+Function ME_GetLine(editor_id, line_number)
+	editor.ME_Editor = editor_id
+	start = True
+	For le.ME_Line = Each ME_Line
+		If start Then
+			start	= False
+			le		= editor\first_line_id
+		EndIf
+		If le\editor_id = editor_id And le\line_number = line_number Then Return le\id
+	Next le
+EndFunction
+
+Function ME_DeleteLines(editor_id)
+	ME_DeleteCarets(editor_id) //Because all lines will be gone, so have be carets too
+	For le.ME_Line = Each ME_Line
+		If le\editor_id = editor_id Then Delete le //DO Not use ME_DeleteLine(le\id) because it doesn't let Delete ALL lines, it want's To leave one.
+	Next le
+EndFunction
+
+Function ME_InsertLine(editor_id, stri$, after_line_id=0)
+	Debug("me_insertline start")
+	editor.ME_Editor= editor_id
+	el.ME_Line		= New(ME_Line)
+	el\id			= ConvertToInteger(el)
+	el\editor_id	= editor_id
+	el\redraw		= True
+	el\content_text	= stri
+	If after_line_id Then
+		invert = First(ME_Line) = ConvertToType(after_line_id)
+		Insert el, ConvertToType(after_line_id)
+		If invert Then
+			//Fix a CoolBasic "feature" the puts the element To the beginning of the Type list when the second argument is the First instance of the Type
+			Insert After(First(ME_Line)), First(ME_Line)
+		EndIf
+	EndIf
+	ME_UpdateLineNumbers()
+	Debug("me_insertline end")
+	Return el\id
+EndFunction
+
+Function ME_DeleteLine(line_id, move_carets_to_line_id=0)
+	le.ME_Line			= line_id
+	editor.ME_Editor	= le\editor_id
+	For caret.ME_Caret  = Each ME_Caret
+		If caret\line_id = line_id Then
+			If move_carets_to_line_id Then
+				caret\line_id = move_carets_to_line_id
+			ElseIf Before(ConvertToType(caret\line_id)) <> NULL Then
+				caret\line_id = Before(ConvertToType(caret\line_id))
+			ElseIf After(ConvertToType(caret\line_id)) <> NULL Then
+				caret\line_id = After(ConvertToType(caret\line_id))
+			Else
+				Error("ME_DeleteLine", "MultiEdit editor must have at least one Line!")
+			EndIf
+			le2.ME_Line			= caret\line_id
+			caret\position		= Min(caret\position, Len(le2\content_text))
+			caret\lean_position= caret\position
+			ME_CalculateCaretDrawingPosition(caret\id)
+		EndIf
+	Next caret
+	Delete le
+	ME_UpdateLineNumbers()
+EndFunction
+
+Function ME_CombineLines(line1_id,line2_id, remove=2)
+	Debug("me_combinelines start")
+	Dim grow.ME_Line
+	Dim shrink.ME_Line
+	If remove = 1 Then
+		grow	= line2_id
+		shrink	= line1_id
+	Else
+		grow	= line1_id
+		shrink	= line2_id
+	EndIf
+	grow\content_text	= grow\content_text + shrink\content_text
+	grow\redraw			= True
+	ME_DeleteLine(shrink\id, grow\id)
+	Debug("me_combinelines end")
+EndFunction
+
+Function ME_SplitLine(line_id, position)
+	Debug("me_splitline start")
+	line1.ME_Line		= line_id
+	editor.ME_Editor	= line1\editor_id
+	If editor\auto_indent Then prefix$ = String(Chr(9), Int(Min(position,ME_IndentLevel(line1\id)))) Else prefix = ""
+	line2.ME_Line 		= ME_InsertLine(line1\editor_id, prefix+Mid(line1\content_text, position+1), line_id)
+	line1\content_text	= Left(line1\content_text, position)
+	line1\redraw		= True
+	Debug("me_splitline end")
+	Return line2\id
+EndFunction
+
+Function ME_UpdateLineNumbers()
+	For editor.ME_Editor = Each ME_Editor
+		editor\first_line_id= 0
+		editor\count_lines	= 0
+	Next editor
+	For le.ME_Line		= Each ME_Line
+		editor.ME_Editor= le\editor_id
+		le\line_number	= editor\count_lines
+		editor\count_lines + 1
+		If Not editor\first_line_id Then editor\first_line_id = le\id
+	Next le
+EndFunction
+
+Function ME_DrawLine(id, x,y,width,height)
+	Debug("me_drawline start")
+	el.ME_Line		= id
+	editor.ME_Editor= el\editor_id
+	If el\redraw Or el\content_image=0 Then
+		el\tabulated_text$	= ME_TabulateText(el\content_text, editor\tab_length)
+		width				= Max(TextWidth(el\tabulated_text),ME_ChrW)
+		height				= Max(TextHeight(el\tabulated_text), ME_ChrH)
+		If Not el\content_image Then
+			el\content_image = MakeImage(width, height)
+		ElseIf ImageWidth(el\content_image) < TextWidth(el\tabulated_text) Or ImageHeight(el\content_image) < TextHeight(el\tabulated_text) Then
+			//Enlarge the Image (don't use resize Image, we are Not scaling content)
+			DeleteImage el\content_image
+			el\content_image = MakeImage(TextWidth(el\tabulated_text), TextHeight(el\tabulated_text))
+		EndIf
+		DrawToImage el\content_image
+		MaskImage el\content_image, 1,1,1
+		Color 1,1,1
+		Box 0,0, ImageWidth(el\content_image), ImageHeight(el\content_image) //Clear Image
+		HOOK_MultiEdit_DrawText(0,0, el\tabulated_text)
+		DrawToScreen
+		el\redraw = False
+	EndIf
+	If el\highlight_image Then DrawImageBox el\highlight_image, x,y-1, 0,0, width,height
+	DrawImageBox el\content_image, x,y, 0,0, width,height
+	If ME_FlagLineID = el\id Then
+		Color cbRed
+		Line x+ME_FlagPosition*ME_ChrW,y+ME_ChrH-1, x+ME_FlagEnd*ME_ChrW,y+ME_ChrH-1
+		Line x+ME_FlagPosition*ME_ChrW,y+ME_ChrH-2, x+ME_FlagEnd*ME_ChrW,y+ME_ChrH-2
+	EndIf
+	Debug("me_drawline end")
+EndFunction
+
+Function HOOK_MultiEdit_DrawText$(x,y, stri$)
+	Color cbBlack
+	Text x,y, stri
+EndFunction
+
+Function ME_DrawLineNumber(line_id, x,y, width)
+	row.ME_Line = line_id
+	If line_id = ME_FlagLineID Then
+		Color cbRed
+		Circle x+TextWidth(" "+(row\line_number+1))+3,y+3, 7
+	EndIf
+	Color cbBlack
+	Text x+ME_ChrW,y, row\line_number+1
+EndFunction
+
+Function ME_TabulateText$(stri$, tab_length) //$ in the end of the function name marks to the compiler that the return value can be directly used with string functions
+	tab$	= Chr(9)
+	a		= 1
+	b		= 0
+	output$	= ""
+	While InStr(stri, tab, b+1) : b = InStr(stri, tab, b+1)
+		part$	= Mid(stri, a,b-a)
+		tab_size= (tab_length-1) - (Len(output+part) Mod tab_length)
+		output	= output + part + String(" ", tab_size)
+		a		= b
+	Wend
+	output = output + Mid(stri,Int(Max(1,a)))
+	Return output
+EndFunction
+
+Function ME_IndentLevel(line_id)
+	row.ME_Line	= line_id
+	tabs		= 0
+	For i = 1 To Len(row\content_text)
+		char$ = Mid(row\content_text,i,1)
+		If char <> Chr(9) Then Exit
+		tabs = i
+	Next i
+	Return tabs
+EndFunction
+
+Function ME_UpdateLineHighlight(line_id)
+	row.ME_Line		= line_id
+	editor.ME_Editor= row\editor_id
+	If row\highlight_image Then
+		DeleteImage row\highlight_image
+		row\highlight_image = OFF
+	EndIf
+	For caret.ME_Caret = Each ME_Caret
+		If caret\tail_line_id Then
+			line_ids$	= ME_GetCaretLines(caret\id)
+			instr_		= InStr(" "+line_ids+" ", " "+line_id+" ")
+			If instr_ Then
+				is_first= instr_ = 1
+				is_last	= instr_ = Len(line_ids)-Len(Str(line_id))+1
+				If Not row\highlight_image Then
+					Debug("MakeImage "+TextWidth(row\tabulated_text)+", "+TextHeight(row\tabulated_text))
+					row\highlight_image = MakeImage(Maxi(1,TextWidth(row\tabulated_text)),TextHeight(row\tabulated_text)+2)
+					Debug("MakeImage succeeded")
+					MaskImage row\highlight_image, 1,1,1
+					DrawToImage row\highlight_image
+				Else
+					DrawToImage row\highlight_image
+				EndIf
+				Color 1,1,1
+				Box 0,0, ImageWidth(row\highlight_image),ImageHeight(row\highlight_image)
+				ME_UseColour(editor\highlight_colour)
+				start	= 0
+				stop	= Len(row\tabulated_text)*ME_ChrW
+				position= ME_IF(row\id=caret\line_id,caret\position,caret\tail_position)
+				If is_first And is_last Then
+					start	= ME_TabulatedPosition(row\id, Min(caret\position,caret\tail_position))-1
+					stop	= ME_TabulatedPosition(row\id, Max(caret\position,caret\tail_position))-1
+				ElseIf is_first	Then
+					start	= ME_TabulatedPosition(row\id, position-1)
+				ElseIf is_last	Then
+					stop	= ME_TabulatedPosition(row\id, position-1)
+				EndIf
+				Box start*ME_ChrW,0, (stop-start)*ME_ChrW,ME_ChrH+2
+			EndIf
+		EndIf
+	Next caret
+	DrawToScreen
+EndFunction
+
+Function ME_UpdateLinesHighlight(line_ids$)
+	For i = 1 To CountWords(line_ids)
+		line_id = GetWord(line_ids, i)
+		ME_UpdateLineHighlight(line_id)
+	Next i
+EndFunction
+
+Function ME_TabulatedPosition(line_id,position)
+	row.ME_Line		= line_id
+	editor.ME_Editor= row\editor_id
+	Return Len(ME_TabulateText(Left(row\content_text,position+1), editor\tab_length))
+EndFunction

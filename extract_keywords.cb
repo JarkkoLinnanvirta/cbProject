@@ -1,0 +1,31 @@
+
+
+functions$	= ""
+commands$	= ""
+others$		= ""
+
+file = OpenToRead("..\..\IDE\Keywords.dat")
+a=ReadLine(file) //First line contains the number of keywords in total. we don't need it.
+While Not EOF(file)
+	row$	= ReadLine(file)
+	keyword$= GetWord(row,1)
+	If InStr(row, "(") Then
+		If functions Then functions + " "
+		functions + keyword
+	ElseIf InStr(row, "-")
+		If commands Then commands + " "
+		commands + keyword
+	Else
+		If others Then others + " "
+		others + keyword
+	EndIf
+Wend
+CloseFile file
+
+file = OpenToWrite("extract.txt")
+WriteLine file, functions
+WriteLine file, ""
+WriteLine file, commands
+WriteLine file, ""
+WriteLine file, others
+CloseFile file

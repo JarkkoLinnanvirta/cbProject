@@ -1,0 +1,4 @@
+
+T_FILE_CBList	= Translate("CoolBasic-tiedostolista")
+T_FILE_CBSource	= Translate("CoolBasic-lähdekoodi")
+T_FILE_All		= Translate("Kaikki tiedostot")

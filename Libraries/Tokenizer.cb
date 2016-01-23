@@ -1,0 +1,203 @@
+
+Debug("Tokenizer.cb start")
+
+Type TO_Token
+	Field type_id
+	Field value		As String
+EndType
+
+Type TO_TokenType
+	Field id
+	Field keywords$
+	Field r
+	Field g
+	Field b
+EndType
+
+
+Global CBTokenStructure,					CBTokenPredefinedCommand,	CBTokenPredefinedFunction
+Global CBTokenString,						CBTokenWhitespace,			CBTokenComment
+Global CBTokenComma,						CBTokenBracketOpen,			CBTokenBracketClose
+Global CBTokenColon,						CBTokenHEXNumber,			CBTokenNumber
+Global CBTokenAssigmentComparisonOperator,	CBTokenUnrecognized,		CBTokenDataType
+Global CBTokenBooleanOperator,				CBTokenMath,				CBTokenPredefinedConstant
+
+Debug("Tokenizer.cb 1")
+
+CBTokenStructure					= NewTokenType(0,0,255,"As Case Const Data Default Dim Each Else ElseIf EndFunction EndIf EndSelect EndType Exit Field For Forever Function Global If Include Step Then To Next Select Type Until Wend While")
+CBTokenPredefinedCommand			= NewTokenType(0,0,255,"CameraFollow CameraPick CenterText ChDir Circle ClearArray ClearCollisions ClearKeys ClearMouse ClearObjects ClearText CloneCameraOrientation CloneCameraPosition CloneObjectOrientation CloneObjectPosition CloseFile CloseInput Cls ClsColor Color CopyBox CopyFile Decrypt DefaultMask DefaultVisible Delete DeleteFile DeleteFont DeleteImage DeleteMEMBlock DeleteObject DeleteSound Dot DrawAnimation DrawGame DrawGhostImage DrawImage DrawImageBox DrawScreen DrawToImage DrawToScreen EditMap Ellipse Encrypt End EndSearch Errors Execute FrameLimit GhostObject Gosub Goto GotoSavedLocation HotSpot InitObjectList Insert Line Locate Lock LoopObject MakeDir MakeError MaskImage MaskObject MemCopy MoveCamera MoveObject   ObjectFloat ObjectInteger ObjectLife ObjectOrder ObjectPick ObjectPickable ObjectRange ObjectString PaintObject ParticleAnimation ParticleEmission ParticleMovement PickColor PickImageColor PickImageColor2 PixelPick PlayObject PlaySound PointCamera PointObject PokeByte PokeFloat PokeInt PositionCamera PositionMouse PositionObject Print PutPixel PutPixel2 Randomize Repeat ResetObjectCollision ResizeImage ResizeMEMBlock Restore Return RotateCamera RotateImage RotateObject SAFEEXIT SaveImage SaveProgram SCREEN ScreenGamma ScreenPositionObject ScreenShot SeekFile SetFont SetMap SetSound SetTile SetupCollision SetWindow ShowMouse ShowObject Smooth2D StartSearch StopAnimation StopObject StopSound Text TranslateCamera TranslateObject TurnCamera TurnObject Unlock UpdateGame VerticalText Wait WaitKey WaitMouse Write WriteByte WriteFloat WriteInt WriteLine WriteString")
+CBTokenPredefinedFunction			= NewTokenType(0,0,255,"Abs ACos AddText After AnimationHeight AnimationPlaying AnimationWidth Asc ASin ATan Before Bin Box BoxOverlap CallDLL CameraAngle CameraX CameraY Chr CloneImage CloneObject CollisionAngle CollisionX CollisionX CommandLine ConvertToInteger ConvertToType Cos CountCollisions CountWords Crc32 CurrentDir CurveAngle CurveValue Date Distance Distance2 DownKey DrawToWorld EOF EscapeKey FileExists FileOffset FileSize FindFile First Flip Float FPS GetAngle GetAngle2 GetCollision GetEXEName GetKey GetMap GetMap2 GetMouse GetPixel GetPixel2 getRGB GetWord GFXModeExists Hex Image ImageHeight ImagesCollide ImagesOverlap ImageWidth Input InStr Int IsDirectory KeyDown KeyHit KeyUp Last Left LeftKey Len LoadAnimImage LoadAnimObject LoadFont LoadImage LoadMap LoadObject LoadProgram LoadSound Log Log10 Lower LSet MakeEmitter MakeImage MakeMap MakeMEMBlock MakeObject MakeObjectFloor MapHeight MapWidth Max MEMBlockSize Min Mid MirrorObject MouseDown MouseHit MouseMoveX MouseMoveY MouseMoveZ MouseUp MouseWX MouseWY MouseX MouseY MouseX New NextObject ObjectAngle ObjectFrame ObjectPlaying ObjectSight ObjectSizeX ObjectSizeY ObjectsOverlap ObjectX ObjectY OpenToEdit OpenToRead OpenToWrite PeekByte PeekFloat PeekInt PeekShort PickedAngle PickedObject PickedX PickedY PlayAnimation PokeShort Rand Read ReadByte ReadFloat ReadInt ReadLine ReadShort ReadString ReDim Replace Right RightKey Rnd RoundDown RoundUp RSet ScreenDepth ScreenHeight ScreenWidth Sin SoundPlaying Sqrt Str String StrInsert StrMove StrRemove Tan TextHeight TextWidth Time Timer Trim UpKey Upper WrapAngle WriteShort")
+CBTokenBooleanOperator				= NewTokenType(128,0,0, "And Not Or Xor")
+CBTokenPredefinedConstant			= NewTokenType(0,120,200, "BLUE GREEN RED False NULL OFF ON PI True cbRed cbOrange cbYellow cbGreen cbBlue cbPurple cbLightRed cbPink cbLightYellow cbLightGreen cbLightBlue cbLightPurple cbDarkRed cbDarkYellow cbDarkGreen cbDarkBlue cbDarkPurple cbCyan cbMagenta cbBlack cbWhite cbSilver cbGold cbDark cbWhiteSkin cbBlackSkin cbkey0 cbkey1 cbkey2 cbkey3 cbkey4 cbkey5 cbkey6 cbkey7 cbkey8 cbkey9 cbkeya cbkeyadd cbkeyapostrophe cbkeyapps cbkeyb cbkeybackslash cbkeybackspace cbkeyc cbkeycapslock cbkeycomma cbkeyd cbkeydecimal cbkeydel cbkeydivide cbkeydown cbkeye cbkeyend cbkeyenter cbkeyequals cbkeyesc cbkeyf cbkeyf1 cbkeyf10 cbkeyf11 cbkeyf12 cbkeyf2 cbkeyf3 cbkeyf4 cbkeyf5 cbkeyf6 cbkeyf7 cbkeyf8 cbkeyf9 cbkeyg cbkeygrave cbkeyh cbkeyhome cbkeyi cbkeyinsert cbkeyj cbkeyk cbkeyl cbkeylalt cbkeylcontrol cbkeyleft cbkeylshift cbkeylwin cbkeym cbkeyminus cbkeymultiply cbkeyn cbkeynum0 cbkeynum1 cbkeynum2 cbkeynum3 cbkeynum4 cbkeynum5 cbkeynum6 cbkeynum7 cbkeynum8 cbkeynum9 cbkeynumlock cbkeyo cbkeyoem102 cbkeyp cbkeypause cbkeyperiod cbkeypgdown cbkeypgup cbkeyprint cbkeyq cbkeyr cbkeyralt cbkeyrcontrol cbkeyreturn cbkeyright cbkeyrwin cbkeys cbkeyscroll cbkeysemicolon cbkeyslash cbkeyspace cbkeysubtract cbkeyt cbkeytab cbkeyu cbkeyup cbkeyv cbkeyw cbkeyx cbkeyy cbkeyz cbkey[ cbkey]")
+CBTokenString						= NewTokenType(0,128,0)
+CBTokenWhitespace					= NewTokenType(cbBlack)
+CBTokenComment						= NewTokenType(128,0,0)
+CBTokenMath							= NewTokenType(255,0,0, "Mod")
+CBTokenComma						= NewTokenType(255,0,0)
+CBTokenBracketOpen					= NewTokenType(128,128,128)
+CBTokenBracketClose					= NewTokenType(128,128,128)
+CBTokenColon						= NewTokenType(cbBlack)
+CBTokenDataType						= NewTokenType(cbGreen, "Byte Short String Integer")
+CBTokenNumber						= NewTokenType(215,70,0)
+CBTokenHEXNumber					= NewTokenType(215,70,0)
+CBTokenAssigmentComparisonOperator	= NewTokenType(255,0,0)
+CBTokenBinaryOperator				= NewTokenType(255,0,0, "Sar Shl Shr")
+CBTokenUnrecognized					= NewTokenType(90,0,0) //Currently user defined variables, functions etc. fall To this Type. 
+
+Debug("Tokenizer.cb 2")
+
+Dim TO_Characters(4,1) As String
+TO_Characters(0,0)		= " "+Chr(9)		: TO_Characters(0,1) = CBTokenWhitespace
+TO_Characters(1,0)		= "0123456789."		: TO_Characters(1,1) = CBTokenNumber
+TO_Characters(2,0)		= Chr(34)			: TO_Characters(2,1) = CBTokenString
+TO_Characters(3,0)		= "<>="				: TO_Characters(3,1) = CBTokenAssigmentComparisonOperator
+TO_Characters(4,0)		= "$"				: TO_Characters(4,1) = CBTokenHEXNumber //$ marks a Hex number If it appears in the BEGINNING of a word (actually, only a number, but the tokenizer doesn't And shouldn't care))!
+Function Tokenize(stri$)
+	Debug("Tokenize start")
+	DeleteTokens()
+	collect		= False
+	word$		= ""
+	For i = 1 To Len(stri)
+		char$		= Mid(stri, i,1)
+		again:
+		If Not collect Then
+			Select char
+			Case ","
+				NewToken(CBTokenComma, ",")
+			Case "("
+				NewToken(CBTokenBracketOpen, "(")
+			Case ")"
+				NewToken(CBTokenBracketClose, ")")
+			Case "'"
+				NewToken(CBTokenComment, Mid(stri, i))
+				Exit //The comment covers the rest of the Line
+			Case "/"
+				NewToken(CBTokenMath, "/")
+			Case "+"
+				NewToken(CBTokenMath, "+")
+			Case "-"
+				NewToken(CBTokenMath, "-")
+			Case "*"
+				NewToken(CBTokenMath, "*")
+			Case "^"
+				NewToken(CBTokenMath, "^")
+			Case ":"
+				NewToken(CBTokenColon, ":")
+			Case "#"
+				NewToken(CBTokenDataType, "#")
+			Case "%"
+				NewToken(CBTokenDataType, "%")
+			Default
+				For n = 0 To 4
+					If InStr(TO_Characters(n,0), char) Then
+						collect = TO_Characters(n,1) //This is a Type instance of TO_TokenType
+						Goto continue
+					EndIf
+				Next n
+				//No check has taken this character, so assume that it is a word that may contain:
+				// - letters
+				// - underscore
+				// - a backslash (the one used when accessing a Type instance Field)
+				// - numbers, but Not in the beginning of the word, thus making us able To identify number characters in the above For loop As belonging To a NUMERIC WORD instead
+				collect = 1
+			EndSelect
+		ElseIf collect = CBTokenString And char = Chr(34) Then //A closing quote character
+			NewToken(CBTokenString, word+char)
+			collect	= False
+			word	= ""
+		ElseIf Not TO_CharacterTypeCheck(char, collect)
+			If collect = 1 Then collect = TO_ConvertTokenType1(word)
+			NewToken(collect, word)
+			word	= ""
+			collect	= False
+			If char = "$" Then
+				NewToken(CBTokenDataType, "$")
+			Else
+				Goto again //Now that the old word has been tokenized, start the character recognition again with the same character that did Not suit To the old token.
+			EndIf
+		EndIf
+		continue:
+		If collect Then word + char
+	Next i
+	If word And collect Then
+		If collect = 1 Then collect = TO_ConvertTokenType1(word)
+		NewToken(collect, word)
+	EndIf
+	Debug("Tokenize End")
+EndFunction
+
+Function TO_CharacterTypeCheck(test_char$, test_type)
+	//Note that this Function does never get called at the beginning of a word, so the test_char parameter is newer the First character of a word!
+	If test_type = CBTokenString Then
+		Return True //test_char can never be a quote character, because closing quote is tested Right Before calling this Function. Instead, every other character - when a quote is open - is allowed in this Type of token, hence Return always True in this Case.
+	ElseIf test_type = 1 Then		//A keyword consisiting of letters, underscore And backslash. Also numbers are allowed, but Not As the First character If a word (no need To worry about that in this Function).
+		Return (test_char>=48 And test_char<=57) Or (test_char>=65 And test_char<=90) Or (test_char=92) Or (test_char=95) Or (test_char>=97 And test_char <=122) Or (test_char>=192)
+	ElseIf test_type = CBTokenHexNumber Then
+		Return InStr("0123456789", test_char) //Hex numbers have a $ in front of them, BUT Not After the First character! That's why we don't Include $ in thtis test pattern. Also a Dot is Not allowed, in opposite To normal numbers.
+	EndIf
+	
+	//Test number, whitespace And assign/comparison operator
+	For i = 0 To 4
+		If InStr(TO_Characters(i,0), test_char) Then
+			Return test_type = TO_Characters(i,1) //This is a Type instance of TO_TokenType
+		EndIf
+	Next i
+EndFunction
+
+//Determines the token type for a word that can contain letters, underscore or a backslash. ALso numbers are allowed, but not in the beginning of the word.
+Function TO_ConvertTokenType1(word$)
+	word = Lower(word)
+	For token_type.TO_TokenType = Each TO_TokenType
+		If InStr(" "+token_type\keywords+" ", " "+word+" ") Then Return token_type\id
+	Next token_type
+	Return CBTokenUnrecognized
+EndFunction
+
+Function NewTokenType(r,g,b,keywords$="")
+	token_type.TO_TokenType	= New(TO_TokenType)
+	token_type\id			= token_type
+	token_type\keywords		= Lower(keywords)
+	token_type\r			= r
+	token_type\g			= g
+	token_type\b			= b
+	Return token_type\id
+EndFunction
+
+Function NewToken(token_type_id, value$)
+	If token_type_id = 0 Then MakeError "NewToken("+token_token_id+","+value+")"
+	token.TO_Token	= New(TO_Token)
+	token\type_id	= token_type_id
+	token\value		= value
+EndFunction
+
+Function TestTokenType(keyword$)
+	keyword = Lower(keyword)
+	For token_type.TO_TokenType = Each TO_TokenType
+		If InStr(" "+token_type\keywords+" ", " "+keyword+" ") Then Return token_type\id
+	Next token_type
+	Return False
+EndFunction
+
+Function DeleteTokens()
+	For token.TO_Token = Each TO_Token
+		Delete token
+	Next token
+EndFunction
+
+Function TokenText(x,y, stri$)
+	Debug("TokenText start")
+	Tokenize(stri)
+	Debug("TokenText 1")
+	For token.TO_Token = Each TO_Token
+		Debug("TokenText 2")
+		token_type.TO_TokenType = token\type_id
+		Debug("TokenText 3 "+token\type_id+" "+token\value)
+		Color token_type\r, token_type\g, token_type\b
+		Debug("TokenText 4")
+		Text x,y, token\value
+		Debug("TokenText 5")
+		x = x + TextWidth(token\value)
+		Debug("TokenText 6")
+	Next token
+	Debug("TokenText End")
+EndFunction

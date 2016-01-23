@@ -1,0 +1,199 @@
+Include "Libraries\MultiEdit\Action.cb"
+Include "Libraries\MultiEdit\Caret.cb"
+Include "Libraries\MultiEdit\Clipboard.cb"
+Include "Libraries\MultiEdit\Definitions.cb"
+Include "Libraries\MultiEdit\Editor.cb"
+Include "Libraries\MultiEdit\Line.cb"
+
+//
+// PUBLIC FUNCTIONS
+//
+
+Function EditorLoadText(editor_id, file_path$)
+	If Not FileExists(file_path) Then Error("EditorLoadText","File '%' does Not exist",file_path)
+	editor.ME_Editor = editor_id
+	ME_DeleteLines(editor_id)
+	file = OpenToRead(file_path)
+	While Not EOF(file)
+		ME_InsertLine(editor_id, ReadLine(file))
+	Wend
+	CloseFile file
+	ME_NewCaret(editor_id, editor\first_line_id, 0)
+EndFunction
+
+Function EditorSaveText(editor_id, file_path$)
+	file			= OpenToWrite(file_path)
+	editor.ME_Editor= editor_id
+	start			= True
+	For row.ME_Line = Each ME_Line
+		If start Then
+			start	= False
+			row		= editor\first_line_id
+		EndIf
+		If row\editor_id = editor_id Then
+			WriteLine file, row\content_text
+		Else
+			Exit
+		EndIf
+	Next row
+	CloseFile file
+EndFunction
+
+Function EditorDraw(editor_id, x,y)
+	Debug("draweditor start")
+	ME_UpdateEditor(editor_id, x,y)
+	editor.ME_Editor = editor_id
+	
+	ME_DrawEditorFrame(editor, x,y)
+	
+	line_number 	= 0
+	left_bar_x		= x
+	left_bar_y		= y
+	If editor\show_line_numbers Then
+		left_bar_width	= ME_EditorLeftBarWidth(editor_id)
+		content_x		= x + left_bar_width
+	Else
+		left_bar_width	= 0
+		content_x		= x
+	EndIf
+	content_y		= y
+	content_width	= editor\width-left_bar_width
+	content_height	= editor\height
+	display_lines	= RoundUp(Float(editor\height) / Float(ME_ChrH))
+	t = Timer()
+	For el.ME_Line = Each ME_Line
+		If el\editor_id = editor_id And el\line_number >= editor\first_visible_line_number Then
+			y_add = l*ME_ChrH
+			For caret.ME_Caret = Each ME_Caret
+				If caret\line_id = el\id Then
+					ME_UseColour(editor\current_line_background_colour)
+					Box content_x,content_y+y_add-1, content_width,ME_ChrH+2
+				EndIf
+			Next caret
+			If editor\show_line_numbers Then ME_DrawLineNumber(el\id, left_bar_x,left_bar_y+y_add, left_bar_width)
+			ME_DrawLine(el\id,content_x,content_y+y_add, content_width,content_height)
+			l+1
+			If l >= display_lines Then Exit
+		EndIf
+	Next el
+	DebugText(80,ScreenHeight()-ME_ChrH, "Line draw Time: "+(Timer()-t))
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then
+			el = caret\line_id
+			ME_DrawCaret(caret\id, content_x+caret\draw_position*ME_ChrW, content_y+(el\line_number-editor\first_visible_line_number)*ME_ChrH)
+		EndIf
+	Next caret
+	Debug("draweditor end")
+EndFunction
+
+Function EditorSetOption(editor_id, key$, value$)
+	editor.ME_Editor = editor_id
+	key = Lower(key)
+	Select key
+	Case "width"
+		editor\width = value
+	Case "height"
+		editor\height = height
+	Default
+		If key = "show-l"+"ine-numbers" Then
+			editor\show_line_numbers = value
+		EndIf
+	EndSelect
+EndFunction
+
+Function EditorGetOption(editor_id, key$)
+	editor.ME_Editor = editor_id
+	key = Lower(key)
+	Select key
+	Case "width"
+		Return editor\width
+	Case "height"
+		Return editor\height
+	Default:
+		If key = "show-l"+"ine-numbers" Then
+			Return editor\show_line_numbers
+		EndIf
+	EndSelect
+EndFunction
+
+Function NewEditor(width,height)
+	Debug("neweditor start")
+	editor.ME_Editor						= New(ME_Editor)
+	editor\id								= ConvertToInteger(editor)
+	editor\width							= width
+	editor\height							= height
+	editor\first_line_id					= ME_InsertLine(editor\id, "")
+	editor\tab_length						= ME_DEFAULT_TAB_LENGTH
+	editor\home_after_tabs					= True
+	editor\auto_indent						= true
+	editor\current_line_background_colour	= ME_NewColour(252,176,24)
+	editor\highlight_colour					= ME_NewColour(200,200,200)
+	ME_NewCaret(editor\id, editor\first_line_id, 0)
+	Debug("newditor end")
+	Return editor\id
+EndFunction
+
+//Collects all text content from the editor
+//line_break parameter can be used to select the line break used, for example Windows, Linux or Mac line breaks, or you
+//can use what ever character(s) too! Windows line break is used by default.
+Function EditorGetText(editor_id, line_break$="")
+	result$ = ""
+	If line_break = "" Then line_break = Chr(10)+Chr(13)
+	For le.ME_Line = Each ME_line
+		If le\editor_id = editor_id Then
+			If result Then result + line_break
+			result + le\content_text
+		EndIf
+	Next le
+	Return result
+EndFunction
+
+Function EditorGetSelectedText(editor_id)
+	For caret.ME_Caret = Each ME_Caret
+		'MakeError caret\editor_id + " "+ editor_id +" " + caret\tail_line_id
+		If caret\editor_id = editor_id Then Return ME_GetCaretSelectedText(caret\id)
+	Next caret
+	Return ""
+EndFunction
+
+//Returns a specific line from the editor
+//line_number starts from 1 in this function, although this system otherwise uses zero based line numbering.
+Function EditorGetLine$(editor_id, line_number)
+	For le.ME_Line = Each ME_line
+		If le\editor_id = editor_id And le\line_number+1 = line_number Then
+			Return le\content_text
+		EndIf
+	Next le
+EndFunction
+
+Function EditorInsertLine(editor_id, stri$, after_line_id=0)
+	//Do Not Return the ID As it's Not meant For public use
+	ME_InsertLine(editor_id, stri$, after_line_id)
+EndFunction
+
+//Underlines a certain line in the editor with a red line
+//line_number starts from 1 in this function, although this system otherwise uses zero based line numbering.
+//if line_number is 0 (= OFF), turn the flag off
+Function EditorFlag(editor_id, line_number=0, specific_word$="")
+	If editor_id = OFF Or line_number = OFF Then ME_FlagLineID = OFF : Return False
+	editor.ME_Editor = editor_id
+	For row.ME_Line = Each ME_Line
+		If row\editor_id = editor_id And row\line_number = line_number-1 Then
+			ME_FlagLineID			= row\id
+			tabulated_text$			= ME_TabulateText(row\content_text, editor\tab_length)
+			specific_word_position	= InStr(Lower(tabulated_text), Lower(specific_word))
+			If specific_word = "" Or specific_word_position = 0 Then
+				ME_FlagPosition	= ME_IndentLevel(row)*editor\tab_length
+				ME_FlagEnd		= Len(tabulated_text)
+			Else
+				ME_FlagPosition	= specific_word_position-1
+				ME_FlagEnd		= ME_FlagPosition + Len(specific_word)
+			EndIf
+		EndIf
+	Next row
+EndFunction
+
+
+
+
+

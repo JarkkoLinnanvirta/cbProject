@@ -1,0 +1,103 @@
+
+
+Function NewEditorTab(file_path$="")
+	tab.EditorTab				= New(EditorTab)
+	access.EditorTabAccessOrder	= New(EditorTabAccessOrder)
+	tab\id						= ConvertToInteger(tab)
+	access\id					= ConvertToInteger(access)
+	access\tab_id				= tab\id
+	tab\access_order_id			= access\id
+	tab\editor					= NewEditor(ScreenWidth()-20,ScreenHeight()-60)
+	tab\file_name				= "Uusi"
+	If file_path Then
+		EditorLoadText(tab\editor,file_path)
+		tab\file_path	= file_path
+		tab\file_name	= GetWord2(file_path, CountWords2(file_path, "\"), "\")
+	EndIf
+	ActivateEditorTab(tab\id)
+	EditorSetOption(tab\editor, "show-line-numbers", True)
+	Return tab\id
+EndFunction
+
+Function GetEditorFromTab(tab_id)
+	tab.EditorTab = tab_id
+	Return tab\editor
+EndFunction
+
+Function ActivateEditorTab(tab_id, update_access_order=1)
+	For tab.EditorTab = Each EditorTab
+		tab\active = False
+		If tab\id = tab_id Then
+			tab\active	= True
+			ActiveEditor= tab\editor
+			ActiveTab	= tab\id
+		EndIf
+	Next tab
+	If update_access_order Then UpdateEditorTabAccessOrder(tab_id)
+EndFunction
+
+Function UpdateEditorTabAccessOrder(tab_id)
+	tab.EditorTab = tab_id
+	If ConvertToType(tab\access_order_id) = Last(EditorTabAccessOrder) Then Return False
+	Insert ConvertToType(tab\access_order_id), Last(EditorTabAccessOrder)
+EndFunction
+
+Function SwitchTab(forward=0)
+	tab.EditorTab = ActiveTab
+	If forward Then
+		access.EditorTabAccessOrder	= After(ConvertToType(tab\access_order_id))
+		If access = NULL Then access = First(EditorTabAccessOrder)
+	Else
+		access.EditorTabAccessOrder	= Before(ConvertToType(tab\access_order_id))
+		If access = NULL Then access = Last(EditorTabAccessOrder)
+	EndIf
+	ActivateEditorTab(access\tab_id, False)
+EndFunction
+
+Function DrawEditorTabs(x,y)
+	base_y	= y+ME_ChrH+12
+	x_add	= 0
+	For tab.EditorTab = Each EditorTab
+		width	= TextWidth(tab\file_name)+20
+		hover	= BoxOverlap(x+x_add,y,width,base_y-y, MouseX(),MouseY(),1,1)
+		height	= ME_ChrH + 10 + 2 * (tab\active Or hover)
+		Color cbBlack
+		Box x+x_add,base_y-height,width,height, OFF
+		If tab\active Or hover Then
+			Color cbWhite
+			Box x+x_add+1, base_y-height+1, width-2,height-1
+			Color 230,230,230
+			Line x+x_add+1, base_y, x+x_add+width-2,base_y
+		Else
+			Color 230,230,230
+			Box x+x_add+1, base_y-height+1, width-2,height-2
+		EndIf
+		Color cbBlack
+		Text x+x_add+10,base_y-ME_ChrH-5, tab\file_name
+		If hover And MouseHit(1) Then ActivateEditorTab(tab\id)
+		If tab\flag Then
+			Color cbRed
+			Line x+x_add,base_y,x+x_add+width-1,base_y
+			Line x+x_add,base_y-1,x+x_add+width-1,base_y-1
+		EndIf
+		x_add = x_add + width - 1
+	Next tab
+EndFunction
+
+Function UnflagEditorTabs()
+	For tab.EditorTab = Each EditorTab
+		tab\flag = False
+	Next tab
+EndFunction
+
+Function FlagEditorTab(tab_id)
+	tab.EditorTab	= tab_id
+	tab\flag		= True
+EndFunction
+
+Function GetEditorTabByFileName(file_name$)
+	For tab.EditorTab = Each EditorTab
+		If Lower(file_name) = Lower(tab\file_name) Then Return tab\id
+	Next tab
+	Return False
+EndFunction

@@ -1,0 +1,201 @@
+Preload()
+Include "Libraries\_Include.cb" //This first!
+
+Include "Definitions.cb"
+Include "Dialog.cb"
+Include "Tab.cb"
+Include "Translation.cb"
+
+Function Preload()
+	SCREEN 1024,768
+	ClsColor 212,208,200
+	Color 212,208,200
+	Box 0,0, ScreenWidth(), ScreenHeight()
+	Settings_Language = "fi"
+EndFunction
+
+Function Main()
+
+	
+	folder$			= CurrentDir()
+	folder			= Left(folder, Len(folder)-1)
+	project_name$	= GetWord(folder, Int(CountWords(folder,"\")),"\")
+	
+	SetFont LoadFont("Lucida Console",13)
+	SetWindow project_name+" - cbProject ver. 0.000000000... release candidate of the alpha's demo"
+	
+	
+	MouseCaretShade = CURSOR_LIGHT
+	tab = NewEditorTab("cbProject.cb")
+	
+	Repeat
+		UpdateEditors(GetKey())
+		
+		
+		DebugText(10,ScreenHeight()-ME_ChrH, "FPS: "+FPS())
+		DebugText(ScreenWidth()-TextWidth(EditorGetSelectedText(ActiveEditor)),ScreenHeight()-ME_ChrH, EditorGetSelectedText(ActiveEditor))
+		If HotKey(cbKeyF5) Or HotKey(cbKeyF4) Then
+			EditorFlag(OFF)
+			UnflagEditorTabs()
+			Draw()
+			cursor = CurrentMouseCursor
+			SetMouseCursor(OFF)				//Use windows cursor While the focus is likely Not in this window
+			If Not Compile(ActiveEditor) Then InterpretError()
+			SetMouseCursor(cursor)
+		EndIf
+		If HotKey(cbKeyLControl, cbKeyN) Then NewEditorTab()
+		If HotKey(cbKeyLControl, cbKeyO) Then
+			file_path$ = DialogOpenFile()
+			If file_path Then NewEditorTab(file_path$)
+		EndIf
+		
+		If HotKey(cbKeyLControl, cbKeyTab) Then SwitchTab() : switched = True
+		If HotKey(cbKeyLControl, cbKeyLShift, cbKeyTab) Then SwitchTab(True) : switched = True
+		If switched and (KeyUp(cbKeyLControl) Or KeyUp(cbKeyLControl)) Then UpdateEditorTabAccessOrder(ActiveTab) : switched = False
+		
+		Draw()
+	Forever
+EndFunction
+
+
+Global Draw_timer
+Function Draw()
+	EditorDraw(ActiveEditor, 10,40)
+	DrawEditorTabs(9,15)
+	DebugText(300,ScreenHeight()-ME_ChrH, "Total Time: "+(Timer()-Draw_timer))
+	DrawScreen
+	Draw_timer = Timer()
+EndFunction
+
+Function Compile(editor_id)
+	CopyFile "Keywords.dat", Settings_CBCompilerKeywordPath //I don't know If the compiler requires this Or Not
+	EditorSaveText(editor_id, Settings_CBCompilerInputPath)
+	If Not FileExists(Settings_CBCompilerPath) Then MakeError "Compiler n"+"ot found in: "+Settings_CBCompilerPath
+	DeleteFile Settings_CBCompilerLogPath //Make sure we don't accidentally Read an old compile Log After starting the compiler
+	Execute Settings_CBCompilerPath
+	result = ParseLog()
+	asd=MouseMoveZ() //Bug fix: For some reason After compiling mouse scrolls To top. Prevent that by truncating the mouse scroll buffer.
+	Return result
+EndFunction
+
+Function CountKeys(exclude_shift=1)
+	count = 0
+	For scan = 1 To 255
+		If KeyDown(scan) Then
+			If False=exclude_shift Or (scan <> cbKeyLShift And scan <> cbKeyRShift) Then count + 1
+		EndIf
+	Next scan
+	Return count
+EndFunction
+
+Function ParseLog()
+	CompilerErrorCode		= 0
+	CompilerErrorFilename	= ""
+	CompilerErrorWord		= ""
+	CompilerErrorLineNumber	= 0
+	While False=FileExists(Settings_CBCompilerLogPath) Or FileSize(Settings_CBCompilerLogPath) = 0
+	Wend
+	log_file	= OpenToRead(Settings_CBCompilerLogPath)
+	If ("Succeeded!" = ReadLine(log_file)) Then		//Line is either "Succeeded!" Or "ERROR" (without quotes)
+		CloseFile log_file
+		Return True
+	EndIf
+	While Not EOF(log_file)
+		row$ = ReadLine(log_file)
+		key$ = Lower(GetWord(row,1))
+		Select key
+		Case "code"
+			CompilerErrorCode		= Mid(row,6)	//Line is like "code 55"
+		Case "detail"
+			CompilerErrorWord		= Mid(row,8) 	//Line is like "detail 123asd", specifying For example bad variable name in the code
+		Case "module"
+			CompilerErrorFilename	= Mid(row,8)	//Line is like "module source.cb" Or just "module "
+		Default : If key = Lower("Line") Then
+			CompilerErrorLineNumber	= Mid(row,6) 	//Line is like "Line 63"
+		EndIf
+		EndSelect
+	Wend
+	CloseFile log_file
+	Return False
+EndFunction
+
+
+Function Error(func$, message$, parameters$="")
+	If parameters Then message = Replace(message, "%", parameters)
+	MakeError func+"(): "+message
+EndFunction
+
+Function Debug(message$)
+	Return False
+	SetWindow message
+EndFunction
+
+Function HOOK_MultiEdit_DrawText(x,y, stri$)
+	TokenText(x,y, stri)
+EndFunction
+
+
+//Max() and Min() functions that can be used in situtations where integers are expected instead of floats
+Function Maxi%(a,b) //% actually defines a short integer, but you can also use these functions with long integer values, because the data type defined here does not actually affect the returned value
+	Return Max(a,b)
+EndFunction
+Function Mini%(a,b)
+	Return Min(a,b)
+EndFunction
+
+Function InterpretError()
+	UnflagEditorTabs()
+	EditorFlag(off)
+	active_tab.EditorTab = ActiveTab
+	If "" = CompilerErrorFilename Then CompilerErrorFilename = active_tab\file_name //If CBCompiler does Not provide a filename, it is the main file
+	If CompilerErrorLineNumber And CompilerErrorWord<>"" Then
+		SetWindow "A '"+CompilerErrorFilename+"' "+CompilerErrorLineNumber+" '"+CompilerErrorWord+"'"
+		//We have a file name For the file having a syntax error, but due To a bug in the CBCompiler, we can't be sure If this file name is correct.
+		//Test the file that we have, And If the error does Not suit it, look For other files that are open in the editor.
+		tab_id			= GetEditorTabByFileName(CompilerErrorFilename)
+		tab_id			= ME_IF(tab_id>0, tab_id, First(EditorTab))
+		tab.EditorTab	= tab_id
+		Repeat
+			row$ = Lower(EditorGetLine(tab\editor, CompilerErrorLineNumber))
+			If InStr(row, Lower(CompilerErrorWord)) Then
+				//We have found the correct file
+				FlagEditorTab(tab\id)
+				EditorFlag(tab\editor, CompilerErrorLineNumber, CompilerErrorWord)
+				
+				//See If the error happens To suit For other files too: (To indicate that there are multiple candidates For the error, but we can't be sure which one is it)
+				tab = After(tab)
+				If tab = NULL Then tab = First(EditorTab)
+				If tab\id = tab_id Then Return True
+			Else //We have a wrong file name (Or the correct file is Not open in the editor at all). Loop through the tabs And try To find the correct file.
+				tab = After(tab)
+				If tab = NULL Then tab = First(EditorTab)
+				If tab\id = tab_id Then Return False
+			EndIf
+		Forever
+	ElseIf CompilerErrorLineNumber
+		SetWindow "B '"+CompilerErrorFilename+"' "+CompilerErrorLineNumber+" '"+CompilerErrorWord+"'"
+		//The compiler did Not pass a substring of the Line having the syntax error
+		//We cannot ensure that we have the correct file, so we'll have To assume it's correct.
+		tab_id			= GetEditorTabByFileName(CompilerErrorFilename)
+		tab.EditorTab	= ME_IF(tab_id>0, tab_id, ActiveTab)
+		FlagEditorTab(tab\id)
+		EditorFlag(tab\editor, CompilerErrorLineNumber)
+	Else
+		// :( Do we ever get here? Hopefully Not. Dear CBCompiler, please Return an error Line number every Time! :)
+	EndIf
+	Return False
+EndFunction
+
+Function DebugText(x,y, txt$)
+	Color cbWhite
+	Box x,y, TextWidth(txt),TextHeight(txt)
+	Color cbBlack
+	Text x,y, txt
+EndFunction
+
+
+
+
+
+
+Main()

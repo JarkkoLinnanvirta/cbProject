@@ -1,0 +1,86 @@
+
+
+//Copied 2016-01-13 from http://www.cbrepository.com/codes/code/103/
+//Author: Jare
+//Modifications: none
+
+Dim HotKey_Cache(255) As Byte
+Dim HotKey_Alternative(255) As Byte
+HotKey_Alternative(cbKeyLShift)		= cbKeyRShift
+HotKey_Alternative(cbKeyRShift)		= cbKeyLShift
+HotKey_Alternative(cbKeyLControl)	= cbKeyRControl
+HotKey_Alternative(cbKeyRControl)	= cbKeyLControl
+HotKey_Alternative(cbKeyLWin)		= cbKeyRWin
+HotKey_Alternative(cbKeyRWin)		= cbKeyLWin
+HotKey_Alternative(cbKeyReturn)		= cbKeyEnter
+HotKey_Alternative(cbKeyEnter)		= cbKeyReturn
+HotKey_Alternative(cbKey1)			= cbKeyNum1
+HotKey_Alternative(cbKey2)			= cbKeyNum2
+HotKey_Alternative(cbKey3)			= cbKeyNum3
+HotKey_Alternative(cbKey4)			= cbKeyNum4
+HotKey_Alternative(cbKey5)			= cbKeyNum5
+HotKey_Alternative(cbKey6)			= cbKeyNum6
+HotKey_Alternative(cbKey7)			= cbKeyNum7
+HotKey_Alternative(cbKey8)			= cbKeyNum8
+HotKey_Alternative(cbKey9)			= cbKeyNum9
+HotKey_Alternative(cbKeyNum1)		= cbKey1
+HotKey_Alternative(cbKeyNum2)		= cbKey2
+HotKey_Alternative(cbKeyNum3)		= cbKey3
+HotKey_Alternative(cbKeyNum4)		= cbKey4
+HotKey_Alternative(cbKeyNum5)		= cbKey5
+HotKey_Alternative(cbKeyNum6)		= cbKey6
+HotKey_Alternative(cbKeyNum7)		= cbKey7
+HotKey_Alternative(cbKeyNum8)		= cbKey8
+HotKey_Alternative(cbKeyNum9)		= cbKey9
+
+Function HotKeyDown(key1,key2=0,key3=0)
+		down1		= False
+		down2		= False
+		down3		= False
+		For scan = 1 To 255
+			If KeyDown(scan) Then
+				If scan = key1 Or scan = HotKey_Alternative(key1) Then
+					down1 = True
+				ElseIf scan = key2 Or scan = HotKey_Alternative(key2) Then
+					down2 = True
+				ElseIf scan = key3 Or scan = HotKey_Alternative(key3) Then
+					down3 = True
+				Else
+					//Another key is down than any of the specified three keys
+					//Return False even If other down keys would match, because we don't want for example HotKey(cbKeyLControl,cbKeyS)
+					//To Return True when cbKeyLControl, cbKeyLShift And cbKeyS are pressed.
+					Return False
+				EndIf
+			EndIf
+		Next scan
+		result = down1
+		If key2 > 0 Then result = result And down2
+		If key3 > 0 Then result = result And down3
+		Return result
+EndFunction
+
+Function HotKey(key1,key2=0,key3=0)
+	count_keys = 1 + (key2>0) + (key3>0)
+	If HotKeyDown(key1,key2,key3) Then
+		If count_keys = (HotKey_Cache(key1)=2 Or HotKey_Cache(HotKey_Alternative(key1))=2) + (HotKey_Cache(key2)=2 Or HotKey_Cache(HotKey_Alternative(key2))=2) + (HotKey_Cache(key3)=2 Or HotKey_Cache(HotKey_Alternative(key3))=2) Then
+			Return False
+		Else
+			HotKey_Cache(key1) = 1
+			HotKey_Cache(key2) = 1
+			HotKey_Cache(key3) = 1
+			HotKey_Cache(HotKey_Alternative(key1)) = 1
+			HotKey_Cache(HotKey_Alternative(key2)) = 1
+			HotKey_Cache(HotKey_Alternative(key3)) = 1
+			Return True
+		EndIf
+	Else
+		Return False
+	EndIf
+EndFunction
+
+Function UpdateHotKey()
+	For i = 1 To 255
+		If HotKey_Cache(i) Then HotKey_Cache(i) = 2
+		If Not KeyDown(i) Then HotKey_Cache(i) = 0
+	Next i
+EndFunction

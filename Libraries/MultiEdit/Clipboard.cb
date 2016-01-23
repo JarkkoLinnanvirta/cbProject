@@ -1,0 +1,51 @@
+
+
+Function ME_SetClipboard(content$)
+	ME_ClearClipboard()
+	content = Replace(content, Chr(13)+Chr(10), Chr(13))
+	content = Replace(content, Chr(10), Chr(13))
+	For i = 1 To CountWords2(content,Chr(13))
+		ME_AddToClipboard(GetWord2(content, i, Chr(13)))
+	Next i
+EndFunction
+
+Function ME_GetClipboard()
+	content$ = ""
+	For clipboard.ME_Clipboard = Each ME_Clipboard
+		If content Then content = content + Chr(13)+Chr(10)
+		content + clipboard\content
+	Next clipboard
+	Return content
+EndFunction
+
+Function ME_AddToClipboard(content$)
+	clipboard.ME_Clipboard	= New(ME_Clipboard)
+	clipboard\content		= content
+EndFunction
+
+Function ME_ClearClipboard()
+	For clipboard.ME_Clipboard = Each ME_Clipboard
+		Delete clipboard
+	Next clipboard
+EndFunction
+
+Function ME_UpdateClipboard()
+	//Check If there is New stuff in the clipboard
+	If ME_ExportedClipboard <> GetClipboardText() Then
+		ME_ExportedClipboard = GetClipboardText()
+		ME_SetClipboard(ME_ExportedClipboard)
+	EndIf
+EndFunction
+
+Function ME_ExportClipboard()
+	ME_ExportedClipboard = ME_GetClipboard()
+	SetClipboardText(ME_ExportedClipboard)
+EndFunction
+
+
+
+//Placeholders that are meant to do nothing but pass the code in compiler even if cbAPI.cb is not included
+Function SetClipboardText$(value$)
+EndFunction
+Function GetClipboardText#() //cbAPI.cb's GetClipboardText() function has a $ sign in the function name, so we can't use $ in here. Use # instead (% would do too), but we need to make sure in this situation that the cbAPI.cb's function gets defined BEFORE this placeholder function. (See libraries\_Include.cb)
+EndFunction

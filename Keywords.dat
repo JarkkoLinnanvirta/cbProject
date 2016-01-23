@@ -1,0 +1,370 @@
+369
+Abs (number#) - Returns the absolute value of the given value
+ACos (angle#) - Returns the Arc-Cosinus of the given angle
+AddText (text$)- Adds a line of text to be rendered when the DrawScreen-statement is called
+After (typevar) - Returns a pointer to the previous list element
+And operator
+AnimationHeight (animation) - Returns the height of loaded animation, in pixels
+AnimationPlaying (animation) - Returns True if the given animation is currently running
+AnimationWidth (animation) - Returns the width of loaded animation, in pixels
+As - Defines a data type
+Asc (character$) - Converts a character into ASCII
+ASin (angle#) - Returns the Arc-Sinus of the given angle
+ATan (angle#) - Returns the Arc-Tangent of the given angle
+Before (typevar) - Returns a pointer to the next list element
+Bin (number) - Returns a string representing the binary value of the given number
+BLUE
+Box (x, y, width, height, [filled]) - Draws a box on the screen
+BoxOverlap (x1, y1, width1, height1, x2, y2, width2, height2) - Returns True if two rectangles collide
+Byte - a part of the Dim-As
+CallDLL (filename$, function$, [in], [out]) - Invokes an external DLL function. The data is swapped between memblocks
+CameraAngle () - Returns the angle of the camera
+CameraFollow obj, style, setting# - Sets the camera to auto-follow a certain object
+CameraPick x, y - Returns the object at the given camera coordinates
+CameraX () - Returns at which position the camera is located
+CameraY () - Returns at which position the camera is located
+Case value - a part of the Select-structure
+CenterText x, y, text$, [style] - Renders a text on the screen, aligned center
+ChDir path$ - Changes the current working directory
+Chr (ascii) - Returns a corresponding character from an ASCII value
+Circle x, y, radius, [filled] - Draws a circle on the screen
+ClearArray on/off- Toggles whether to empty arrays during the Redim call
+ClearCollisions - Clears the inner list of all collision declarations
+ClearKeys - Flushes the keyboard buffer
+ClearMouse - Flushes the mouse button buffer
+ClearObjects - Removes all loaded objects and frees their memory
+ClearText - Clears the AddText-list
+CloneCameraOrientation obj - Sets the camera to the same angle as the given object
+CloneCameraPosition obj - Sets the camera to the same location as the given object
+CloneImage (image) - Makes a copy of the given image
+CloneObject (source_obj) - Makes a copy of the given object
+CloneObjectOrientation source_obj, dest_obj - Sets the given object to the same angle with the other one
+CloneObjectPosition source_obj, dest_obj - Repositions an object according to the other one
+CloseFile file - Ends disk operations on previously opened file
+CloseInput - Ends an input sequence previously created with the Input command
+Cls - Clears the screen. Automatically called during the DrawScreen call
+ClsColor red, green, blue - Sets the background color of Cls
+CollisionAngle (obj, index) - Returns the hit angle of a specified collision event
+CollisionX (obj, index) - Returns the X-location of a specified collision event
+CollisionX (obj, index) - Returns the Y-location of a specified collision event
+Color red, green, blue - Sets the drawing color
+CommandLine () - Returns all parameters that the program got during launch
+Const - Declares a constant value
+ConvertToInteger (typevar) - Creates an integer pointer to a typed variable
+ConvertToType (integer) - Creates a typed variable according to the given memory pointer
+CopyBox x1, y1, width, height, x2, y2, [src], [dest] - Performs a Copy&Paste -operation to graphics
+CopyFile filename$, dest$ - Copies a file to another location
+Cos (angle#) - Returns the Cosinus of the given angle
+CountCollisions (obj) - Counts the number of collision events for the specified object since last UpdateGame or DrawScreen call
+CountWords (string$, [separator$]) - Returns how many tokens the given string has
+Crc32 (filename$/memblock) - Returns a 32-bit file fingerprint
+CurrentDir () - Returns the current working directory
+CurveAngle (newAngle#, oldAngle#, smooth#) - Creates an interpolated value between two values. Takes the limit of 0-360 into account
+CurveValue (newValue#, oldValue#, smooth#) - Creates an interpolated value between two values.
+Data <datalist> - Declares a new Data-segment
+Date () - Returns the current date as string
+Decrypt filename$/memblock, key$ - Makes a file or memblock readable again
+Default - a part of the Select-structure
+DefaultMask on/off, [red, blue, green] - Sets the default mask color for loaded images
+DefaultVisible on/off - Sets the default visibility for loaded objects
+Delete typevar - Removes a list element
+DeleteFile filename$ - Removes the given file from the hard disk permanently
+DeleteFont font - Frees a font from memory
+DeleteImage image - Frees an image from memory
+DeleteMEMBlock memblock - Frees the allocated memory of the given bank
+DeleteObject obj - Frees an object from memory
+DeleteSound sound - Frees a sound from memory
+Dim - Declares an array
+Distance (x1, y1, x2, y2) - Returns the distance between two points
+Distance2 (obj1, obj2) - Returns the distance of two objects
+Dot x#, y# - Draws a dot on the screen
+DownKey () - Returns True if the down arrow is pressed
+DrawAnimation animation, [x], [y], [width], [height]- Renders the running animation on the screen
+DrawGame - Renders all objects
+DrawGhostImage image, x#, y#, [frame], [transparency] - Draws an image on the screen blended with the given opacity
+DrawImage image, x#, y#, [frame], [masked] - Draws an image on the screen at given coordinates
+DrawImageBox image, x#, y#, startx#, starty#, width, height, [frame], [masked] - Draws a portion of an image on the screen at given coordinates
+DrawScreen [auto-CLS], [mode] - Draws the screen and makes all visible. Don't forget!
+DrawToImage image - Sets all drawing operations to the given image
+DrawToScreen - Restores all drawing operations to the screen
+DrawToWorld shapes, images, text - Sets all drawing operations (such as text, images or shapes) to obey world coordinates
+Each - See 'For'
+EditMap layer, x, y, tile - Manipulates the loaded map realtime
+Ellipse x#, y#, width, height, [filled] - Draws an ellipse on the screen
+Else - a part of a condition
+ElseIf condition - a part of a condition
+Encrypt filename$/memblock, key$- Corrupts a given file or memblock so nobody can understand it
+End - Terminates the program
+EndFunction - The ending part of a function
+EndIf - The ending part of a condition
+EndSelect - The ending part of a 'Select'
+EndType - The ending part of a 'Type'
+EndSearch - Stops and re-initializes directory search
+EOF (file) - Returns True if the given file has been read to the end
+Errors on/off - Toggles loading error messages on/off
+EscapeKey () - Returns True if the Esc-key is pressed
+Execute file$, - Opens a file, runs another application or performs an action by OS
+Exit - Steps out from Repeat/While/For -loop
+False - 0
+Field - Declares another field variable to user defined type
+FileExists (filename$) - Returns True if the given file exists and path is found
+FileOffset (file) - Returns the current Read/write position of the given file
+FileSize (filename$) - Returns the size of the given file, in bytes
+FindFile () - Returns next entry from file search
+First (type) - Returns the pointer to the first element in the given list
+Flip (string$) - Turns the given string upside-down
+Float (number/string$) - Converts any basic data type into a float value
+For - Starts a loop that runs specified times or until it's broken by the Exit-statement
+Forever - The ending part of a 'Repeat'
+FPS () - Tells how many frames were drawn during the last second
+FrameLimit number - Limits the speed of the game by disallowing it to draw more than a set amount of times per second
+Function - Declares a user defined function
+GetAngle (x1, y1, x2, y2) - Returns the angle between two points. The value is wrapped into 0-360
+GetAngle2 (obj1, obj2) - Returns the angle between two objects
+GetCollision (obj, index) - Returns the collision object of the specified collision event
+GetEXEName () - Returns the currently executed program path and name
+GetKey () - Returns the ASCII value of a recently pressed key
+GetMap (layer, x, y) - Reads data from the loaded map, in pixels
+GetMap2 (layer, x, y) - Reads data from the loaded map, in tiles
+GetMouse () - Returns the button value of a recently pressed mouse button
+GetPixel (x, y, [source]) - Reads a pixel from the current buffer
+GetPixel2 (x, y, [source]) - Reads a pixel from the current locked buffer
+getRGB (value, component) - Extracts a component of a long RGB value
+GetWord (string$, index, [separator$]) - Extracts a token from the given string
+GFXModeExists (width, height, depth) - Returns True if the given graphics mode is supported by the graphics card
+GhostObject obj, transparency - Declares a variable as global
+Global - Declares a variable as global
+Gosub label - Jumps to a label. A Return is possible
+Goto label - Jumps to a label immediately
+GotoSavedLocation - Continues the program where it left during Save
+GREEN
+Hex (number) - Returns a string representing the hexa-decimal value of the given number
+HotSpot on/off, [x, y] - Defines the controlling point of loaded images
+If condition - The condition statement
+Image (image) - Guides the stream to image handler
+ImageHeight (image) - Returns the height of the given image, in pixels
+ImagesCollide (image1, x1, y1, frame1, image2, x2, y2, frame2) - Performs a pixel-perfect collision check to two images
+ImagesOverlap (image1, x1, y1, image2, x2, y2) - Check if two images overlap by their "bounding boxes"
+ImageWidth (image) - Returns the width of the given image, in pixels
+Include "file" - Appends an external file to the source
+InitObjectList - Resets the object iteration list
+Input (message$, [passchar$]) - Creates an input sequence where the user types a data into a variable via keyboard
+Insert typevar, position - Pokes a list element to the given position
+InStr (string$, find$, [startPos]) - Finds a substring from the given string and returns its offset
+Int (float#/string$) - Converts any basic data type into an integer
+IsDirectory (filename$) - Returns True if the given string represents a valid path
+KeyDown (key) - Returns True if the given key is being pressed
+KeyHit (key) - Tells how many times a key has been hit since last call
+KeyUp (key) - Returns True if the given key has been released
+Last (type) - Returns the pointer to the last element in the given list
+Left (string$, length) - Extract characters from the left of the given string
+LeftKey () - Returns True if the left arrow is pressed
+Len (string$) - Returns the length of the given string, in characters
+Line x1, y1, x2, y2 - Draws a line on the screen
+LoadAnimImage (filename$, width, height, start, length) - Loads an image strip from the disk and returns its handle
+LoadAnimObject (filename$, width, height, start, length, [rotation]) - Loads an animated object from the disk and returns its handle
+LoadFont (filename$, [size], [bold], [italic], [underline]) - Loads a font from the disk and returns its handle
+LoadImage (filename$) - Loads an image from the disk and returns its handle
+LoadMap (filename$, tileset$) - Loads a tilemap from the disk and returns its handle
+LoadObject (filename$, [rotation]) - Loads an object sprite from the disk and returns its handle
+LoadProgram filename$ - Loads a previousy saved program state (game save)
+LoadSound (filename$) - Loads a sound from the disk and returns its handle
+Locate x, y - Sets the text drawing location on the screen
+Lock [buffer] - Locks a buffer
+Log (number) - Returns the natural logarithm of the given number
+Log10 (number) - Returns the common logarithm of the given number
+LoopObject obj, [start], [end], [speed], [continuity] - Animates an object and repeats its animation infinitely
+Lower (string$) - Transforms a string into lower case
+LSet (string$, length) - Aligns a string to left
+MakeDir path$ - Creates a directory
+MakeEmitter (image, life) - Creates a particle emitter object and returns its handle
+MakeError message$ - Terminates the program and shows an error message
+MakeImage (width, height, [frames]) - Dynamically creates an empty image to memory
+MakeMap (width, height, tileWidth, tileHeight) - Creates a new empty map to memory. The previous map will be destroyed
+MakeMEMBlock (size) - Allocates memory and returns its handle
+MakeObject () - Creates an invisible object pivot with no radius or visual data
+MakeObjectFloor () - Creates a floor object that flood fills the whole game world
+MapHeight () - Returns the map height, in tiles
+MapWidth () - Returns the map width, in tiles
+MaskImage image, red, green, blue - Sets the transparent color of the given image
+MaskObject obj, red, green, blue - Sets the transparent color of the given object
+Max (val1, val2) - Takes two values and returns the greatest
+MEMBlockSize (memblock) - Returns the length of allocated memory of the given bank
+MemCopy src, pos, dest, pos, length - Copies a portion of memory to another location
+Min (val1, val2) - Takes two values and returns the smallest
+Mid (string$, pos, length) - Extract characters from the middle of the given string
+MirrorObject (obj, style) - Flips an object vertically or horizontally
+Mod - Returns the modulus of division between two integers
+MouseDown (button) - Returns True if a certain mouse button is being held down
+MouseHit (button) - Returns the number of mouse hits since the last call
+MouseMoveX () - Returns the horizontal mouse "speed"
+MouseMoveY () - Returns the vertical mouse "speed"
+MouseMoveZ () - Returns the mouse wheel "speed"
+MouseUp (button) - Returns True if a bouse button has been released (clicked)
+MouseWX () - Returns the horizontal mouse coordinate relative to world
+MouseWY () - Returns the vertical mouse coordinate relative to world
+MouseX () - Returns the mouse X location on the screen
+MouseY () - Returns the mouse Y location on the screen
+MouseX () - Returns the mouse wheel location since program start
+MoveCamera forw, [side] - Moves the camera according to its angle
+MoveObject obj, forw, [side] - Moves the given object according to its angle
+New (type) - Creates a new list element and returns its pointer
+Next - Iterates 'For'
+NextObject () - Iterates to the next object
+Not operator
+NULL - 0
+ObjectAngle (obj) - Returns the angle of the given object
+ObjectFloat *obj,val* - Set or extracts data from the given object
+ObjectFrame (obj) - Returns the current animation frame of the given object
+ObjectInteger *obj,val* - Set or extract data from the given object
+ObjectLife *obj,val* - Set or receive lifetime of the given object
+ObjectOrder obj, order - Re-order object rendering queue index
+ObjectPick obj - Let the object project a straight picking line according to its angle
+ObjectPickable obj, method - Set object picking mode
+ObjectPlaying (obj) - Returns True if the given object is animating at the moment
+ObjectRange obj, rangeX, [rangeY]- Sets the collision radius of the given object
+ObjectSight (obj1, obj2) - Returns True if two objects can see each other
+ObjectSizeX (obj) - Returns the absolute width of the given object, in pixels
+ObjectSizeY (obj) - Returns the absolute Height of the given object, in pixels
+ObjectsOverlap (obj1, obj2) - Returns True if two objects collide by their "bounding ranges"
+ObjectString *obj,val* - Set or extract data from the given object
+ObjectX (obj) - Returns the world X position of the given object
+ObjectY (obj) - Returns the world Y position of the given object
+OFF - 0
+ON - 1
+OpenToEdit (filename$) - Opens a file for read and write operations (random access) and returns its handle
+OpenToRead (filename$) - Opens a file for read only and returns its handle
+OpenToWrite (filename$) - Opens a file for writing and returns its handle
+Or operator
+PaintObject obj, obj/image - Sets a new skin for an object
+ParticleAnimation emitter, frames - Sets some animation attributes of the given emitter projectiles
+ParticleEmission emitter, frequency, amount, spread - Sets some emission attributes of the given emitter projectiles
+ParticleMovement emitter, speed#, gravity#, [acceleration#] - Sets some movement patterns of the given emitter projectiles
+PeekByte (memblock, position) - Reads a byte from a memblock
+PeekFloat (memblock, position) - Reads a float from a memblock
+PeekInt (memblock, position) - Reads an integer from a memblock
+PeekShort (memblock, position) - Reads a short integer (2 bytes) from a memblock
+PI - 3.141592653589793...
+PickColor x, y - Takes a color from the screen and sets it as drawing color
+PickedAngle () - Returns the projection hit angle from the latest pick event
+PickedObject () - Returns the picked object
+PickedX () - Returns the picked X-coordinate
+PickedY () - Returns the picked Y-coordinate
+PickImageColor image, x, y - Reads a pixel value within an image and sets the drawing color accordingly
+PickImageColor2 image, x, y - Reads a pixel value within a locked image buffer and sets the drawing color accordingly
+PixelPick obj, [quality] - Performs a projection inside an image. The pick will be pixel-perfect regardless of black
+PlayAnimation (filename$) - Sets an animation running
+PlayObject obj, [start], [end], [speed], [continuity] - Animates an the given object at given sequence
+PlaySound sound/filename$/CDTrack, [volume], [pan], [pitch] - Plays a sound from hard disk, CD or memory
+PointCamera obj - Sets the camera angle towards the given object
+PointObject obj- Sets the object angle towards the given object
+PokeByte memblock, position, value - Writes a byte into memblock
+PokeFloat memblock, position, value# - Writes a float value into memblock
+PokeInt memblock, position, value - Writes an integer into memblock
+PokeShort memblock, position, value - Writes a short integer (2 bytes) into memblock
+PositionCamera x, y - Positions the camera at given coordinates
+PositionMouse x, y - Positions the mouse pointer at given location on screen
+PositionObject obj, x, y, [z]- Positions the given object at given coordinates
+Print [int/float#,string$]- Prints text into front buffer
+PutPixel x, y, color - Renders a pixel to buffer
+PutPixel2 x, y, color - Renders a pixel to locked buffer
+Rand ([min], max) - Returns a random integer between range
+Randomize number - Reseeds the random number generator with the given value
+Read () - Reads data from the DATA segments
+ReadByte (file) - Reads a byte from a file
+ReadFloat (file) - Reads a float value from a file
+ReadInt (file) - Reads an integer from a file
+ReadLine (file) - Reads a string line from a file (string until CLRF)
+ReadShort (file) - Reads a short integer (2 bytes) from a file
+ReadString (file) - Reads a binary string from a file
+RED
+ReDim array(<dimensions>) - Resizes an array
+Repeat - Starts a Repeat-loop
+Replace (string$, find$, replace$) - Replaces a string occurance with another inside the given string and returns the result
+ResetObjectCollision obj - Flushes object collision data
+ResizeImage image, width, height - Scale the given image to new dimensions
+ResizeMEMBlock memblock, size - Reallocates memory for memblock. The address changes, use the return value to get the new address
+Restore label - Set the data reader to a label
+Return [value] - Returns a value from a function or restore sub program execution offset where it was before Gosub
+Right (string$, length) - Extract characters from the right of the given string
+RightKey () - Returns True if the right arrow is pressed
+Rnd ([min], max)- Returns a random float value between range
+RotateCamera angle# - Sets the absolute angle of the camera
+RotateImage image, angle# - Transforms image as it was rotated with degrees defined by argument
+RotateObject obj, angle# - Sets the absolute angle of the given object
+RoundDown (number#) - Rounds a float value down to the nearest integer
+RoundUp (number#) - Rounds a float value up to the nearest integer
+RSet (string$, length) - Aligns a string to right
+SAFEEXIT on/off - Toggles Escape-autoquit on/off
+Sar - Operator: binary shift to right
+SaveImage image, filename$, [frame] - Writes a BMP while from an image in memory
+SaveProgram filename$ - Creates a save state useful in some games and applications
+SCREEN *width, height, [depth], [mode]* - Sets the graphics mode or returns the screen buffer
+ScreenDepth () - Returns the current color depth
+ScreenGamma red, green, blue - Sets screen gamma. Only works in fullscreen-mode
+ScreenHeight () - Returns the screen or window height, in pixels
+ScreenPositionObject obj, x#, y# - Positions the given object at given screen coordinates
+ScreenShot filename$ - Takes a snapshot and saves it as BMP onto hard disk. Use just before DrawScreen
+ScreenWidth () - Returns the screen or window width, in pixels
+SeekFile file, position - Alters the read/write position inside the given file
+Select - Starts a Select-structure
+SetFont font - Set the current drawing font
+SetMap map, back, fore - Set map layer rendering options
+SetSound sound, effect, [volume], [pan], [pitch] - Modify the sound on the fly!
+SetTile index, length, factory - Set tile animation properties
+SetupCollision obj1, obj2, srctype, desttype, method - Declare a collision occurance and behaviour between two objects
+SetWindow caption$, [mode], [quit_prompt$] - hange Window properties such as caption, state and quit notification
+Shl - Operator: binary shift to left
+Short - a part of the Dim-As
+ShowMouse on/off/image - Hide/Show mouse and/or define its cursor image
+ShowObject obj, on/off - Hide/Show the given object
+Shr - Operator: binary shift to right
+Sin (angle#) - Returns the sinus of the given angle
+Smooth2D on/off - Toggles blinear filtering to image scaling and rotating on/off
+SoundPlaying (sound) - Returns True is the specified sound is currently playing
+Sqrt (number#) - Returns the square root of the given number
+StartSearch - Initializes a directory to search for
+Step - a part of the For-statement
+StopAnimation animation - Stops animation from running
+StopObject obj - Terminate object animation
+StopSound channel - Stop the given sound channel from playing
+Str (number#) - Converts any basic data type into string
+String (build$, length) - Builds a string grom the given character
+StrInsert (string$, position, text$) - Inserts a string inside another string
+StrMove (string$, position, length, shift) - Moves substring within the given string to another string position
+StrRemove (string$, position, length) - Removes a portion inside a string
+Tan (angle#) - Returns the tangent of the given value
+Text x, y, text$ - Renders text to the screen with the current font
+TextHeight (string$) - Returns the string height with the current font, in pixels
+TextWidth (string$)- Returns the string width with the current font, in pixels
+Then - a part of the If-statement
+Time () - Returns the current clock as string
+Timer () - Returns the system timer
+To - a part of the For-statement
+TranslateCamera x, y - Moves the camera regardless from its angle
+TranslateObject obj, x, y, [z]- Moves the given object regardless from its angle
+Trim (string$) - Removes empty leading and tailing spaces from a string and returns the result
+True - 1
+TurnCamera angle# - Turn camera :)
+TurnObject obj, angle# - Turn object :)
+Type - Declares a user defined type
+Unlock [buffer] - Unlocks a buffer previously locked with the Lock-command
+Until - The ending part of a 'Repeat'
+UpdateGame - Updates the collision and animation events
+UpKey () - Returns True if the up arrow is pressed
+Upper (string$) - Transforms a string into upper case
+VerticalText x, y, text$ - Renders text vertically to the given coordinates
+Wait time - Forces the OS to delay the program for the given time
+WaitKey - Freezes the program execution until a key is pressed
+WaitMouse - Freezes the program execution until a mouse button is pressed
+Wend - The ending part of a 'While'
+While - Starts a While-loop
+WrapAngle (angle#) - Limits the number to stay at range 0-360
+Write int/float#/string$ - Prints text into front buffer, but don't change line
+WriteByte file, value - Writes a byte into a file
+WriteFloat file, value# - Writes a float value into a file
+WriteInt file, value - Writes an integer into a file
+WriteLine file, value$ - Writes a string into a file. The line change 2-bytes is included
+WriteShort file, value - Writes a short integer (2-byte) into a file
+WriteString file, value$ - Writes a binary string into a file
+Xor operator

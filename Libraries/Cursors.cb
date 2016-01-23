@@ -1,0 +1,52 @@
+
+Const COUNT_MOUSE_CURSORS	= 13
+Const MOUSE_CURSOR_WIDTH	= 42
+Const MOUSE_CURSOR_HEIGHT	= 46
+
+Const CURSOR_LIGHT			= 0
+Const CURSOR_DARK			= 1
+Const CURSOR_OFF			= 0
+Const CURSOR_NORMAL			= 1
+Const CURSOR_HELP			= 2
+Const CURSOR_PRECISION		= 3
+Const CURSOR_TEXT			= 4
+Const CURSOR_EDIT			= 5
+Const CURSOR_DISABLED		= 6
+Const CURSOR_RESIZE_Y		= 7
+Const CURSOR_RESIZE_X		= 8
+Const CURSOR_RESIZE_D1		= 9
+Const CURSOR_RESIZE_D2		= 10
+Const CURSOR_MOVE			= 11
+Const CURSOR_ALTERNATE		= 12
+Const CURSOR_LINK			= 13
+
+Global CurrentMouseCursor, MouseCursorShade
+Dim MouseCursorImages(COUNT_MOUSE_CURSORS,1)
+Function LoadMouseCursors()
+	cursors = LoadImage("Cursors.png")
+	For shade = CURSOR_LIGHT To CURSOR_DARK
+		For cursor = 1 To COUNT_MOUSE_CURSORS
+			MouseCursorImages(cursor,shade) = MakeImage(MOUSE_CURSOR_WIDTH,MOUSE_CURSOR_HEIGHT)
+			MaskImage MouseCursorImages(cursor,shade), cbMagenta
+			CopyBox (cursor-1)*MOUSE_CURSOR_WIDTH,shade*MOUSE_CURSOR_HEIGHT, MOUSE_CURSOR_WIDTH,MOUSE_CURSOR_HEIGHT, 0,0, Image(cursors),Image(MouseCursorImages(cursor,shade))
+		Next cursor
+	Next shade
+	DeleteImage cursors
+EndFunction
+LoadMouseCursors()
+
+//**
+//Changes mouse pointer image. The image is picked from the predefined collection. Use CURSOR_OFF to reset to the default, non image based cursor
+//The shade parameter is used to indicate the background color on which the cursor will be used on. Because CoolBasic does not have antializing in images,
+//the collection includes two cursor sets:
+//	- CURSOR_LIGHT has some edge artifacts that work well on white/light backgrounds
+//	- CURSOR_DARK has those artifacts removed and it works well on dark backgrounds, but doesn't look so good on white ones
+//Use the MouseCursorShade global variable to set a default shade that will be used every time the second parameter is omitted.
+Function SetMouseCursor(cursor,shade=-1)
+	If cursor Then
+		If shade = -1 Then shade = MouseCursorShade
+		ShowMouse MouseCursorImages(cursor, shade)
+	Else
+		ShowMouse ON
+	EndIf
+EndFunction

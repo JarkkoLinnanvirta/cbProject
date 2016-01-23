@@ -1,0 +1,4 @@
+
+Function Scrollbar(x,y, thickness, length, count_visible, count_total, horizontal=0)
+	paddle_length = Max(Min(count_visible/count_total, 1.0) * length, Min(length,10))
+EndFunction

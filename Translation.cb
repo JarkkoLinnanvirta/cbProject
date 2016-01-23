@@ -1,0 +1,31 @@
+
+Function _t(translation_id, variables$="")
+	translation.TranslationRecord = translation_id
+	result$ = ""
+	For i = 1 To CountWords2(translation\translation, "%")
+		If result Then result = result + GetWord2(variables, i, "%")
+		result = result + GetWord2(translation\translation, i, "%")
+	Next i
+	Return result
+EndFunction
+
+Function Translate(txt$)
+	translation.TranslationRecord	= New(TranslationRecord)
+	translation\id					= ConvertToInteger(translation)
+	translation\translation			= txt
+	Return translatiON\id
+EndFunction
+
+
+//Translation globals
+Global T_FILE_CBList,		T_FILE_CBSource,	T_FILE_All
+
+
+
+//Load the selected translation
+Select Settings_Language
+	Case "fi"
+		Include "fi.cb"
+	Default
+		Include "en.cb"
+EndSelect

@@ -1,0 +1,36 @@
+Global Settings_CBCompilerPath$					: Settings_CBCompilerPath		= "Compiler.cmd"
+Global Settings_CBCompilerInputPath$			: Settings_CBCompilerInputPath	= "../../IDE/Editor.out"
+Global Settings_CBCompilerOutputPath$			: Settings_CBCompilerOutputPath	= "../../IDE/cbRun.exe"
+Global Settings_CBCompilerLogPath$				: Settings_CBCompilerLogPath	= "../../IDE/CompileLog.txt"
+Global Settings_CBCompilerKeywordPath$			: Settings_CBCompilerKeywordPath= "../../IDE/Keywords.dat"
+
+Global Settings_Language$
+
+Global CompilerErrorCode
+Global CompilerErrorFilename$
+Global CompilerErrorWord$
+Global CompilerErrorLineNumber
+
+Global ActiveEditor
+Global ActiveTab
+
+
+Type EditorTab
+	Field id
+	Field editor
+	Field file_name$
+	Field file_path$
+	Field active
+	Field access_order_id
+	Field flag
+EndType
+
+Type EditorTabAccessOrder
+	Field id
+	Field tab_id
+EndType
+
+Type TranslationRecord
+	Field id
+	Field translation$
+EndType
