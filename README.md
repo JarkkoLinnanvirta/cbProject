@@ -3,6 +3,12 @@ An editor for the Coolbasic programming language made with CoolBasic itself. I h
 
 NOTE that this is very incomplete at the moment! (Still has something that works :) ). No proimises are made whether the development will continue.
 
+![Screenshot](Screenshot1.png)
+
+![Screenshot](Screenshot2.png)
+
+
+
 ## Working features
 - New tab (Ctrl + N)
 - Open file (Ctrl + O).
