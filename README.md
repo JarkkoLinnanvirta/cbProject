@@ -41,7 +41,8 @@ The multi-caret feature has a working basic functionality, but can be improved t
 ## Exotic dreams
 - **Something that are not actual goals, but could be investigated after completing the basic features**
 - Some basic real time syntax checks
-- 
+
+
 # Author
 
 Jarkko "Jare" Linnanvirta
