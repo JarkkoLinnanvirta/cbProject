@@ -31,3 +31,11 @@ NOTE that this is very incomplete at the moment! (Still has something that works
 ## Exotic dreams
 - **Something that are not actual goals, but could be investigated after completing the basic features**
 - Some basic real time syntax checks
+- 
+# Author
+
+Jarkko "Jare" Linnanvirta
+j@jare.fi
+http://www.coolbasic.com/phpBB3/memberlist.php?mode=viewprofile&u=92
+http://www.kpelit.fi
+
