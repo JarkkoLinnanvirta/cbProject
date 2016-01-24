@@ -1,7 +1,7 @@
 # cbProject
 An editor for the Coolbasic programming language made with CoolBasic itself. I have to admit that the name is very unimaginative, hopefully the featurelist will make that up atleast at somepoint :).
 
-NOTE that this is very incomplete at the moment! (Still has something that works :) ). No proimises are made whether the development will continue.
+NOTE that this is very incomplete at the moment! (Still has something that works :) ). No promises are made whether the development will continue.
 
 ![Screenshot](Screenshot1.png)
 Syntax highlighting has a few bugs, but is quite nice still :).
