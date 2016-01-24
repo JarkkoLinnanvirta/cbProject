@@ -67,29 +67,27 @@ Function UpdateEditors(getkey_value)
 	If HotKey(cbKeyTab) Then											//TAB
 		ME_PerformAction(ActiveEditor, "Insert", Chr(9))
 	ElseIf HotKey(cbKeyEnter) Then											//ENTER
-		'indent				= ME_IndentLevel(row\id)
-		'caret\line_id		= ME_SplitLine(row\id, caret\position)
-		'row					= caret\line_id
-		'caret\position		= ME_IF(editor\auto_indent, indent, 0)
-		'caret\lean_position	= 0
-		'ME_CalculateCaretDrawingPosition(caret)
 		ME_PerformAction(ActiveEditor, "Insert", Chr(13)+Chr(10))
 	ElseIf HotKey(cbKeyBackspace) Then										//BACKSPACE
 		ME_PerformAction(ActiveEditor, "DeleteBefore")
 	ElseIf HotKey(cbKeyDel) Then											//Delete
 		ME_PerformAction(ActiveEditor, "DeleteAfter")
-	ElseIf HotKey(cbKeyLControl, cbKeyZ) Then
+	ElseIf HotKey(cbKeyLControl, cbKeyZ) Then								//UNDO
 		ME_UndoAction(ActiveEditor)
-	ElseIf HotKey(cbKeyLControl, cbKeyY) Then
+	ElseIf HotKey(cbKeyLControl, cbKeyY) Then								//REDO
 		ME_RedoAction(ActiveEditor)
-	ElseIf HotKey(cbKeyLControl,cbKeyR) Then
+	ElseIf HotKey(cbKeyLControl,cbKeyR) Then								//Repeat
 		ME_RepeatAction(ActiveEditor)
-	ElseIf HotKey(cbKeyLControl, cbKeyU) Then
+	ElseIf HotKey(cbKeyLControl, cbKeyU) Then								//SPLIT UNDO BUFFER
 		ME_CutActionLog = True
+	ElseIf HotKey(cbKeyCapsLock) Then										//CAPS Lock
+		ME_ToggleCapsLock()
 	ElseIf ME_Input															//Input CHARACTER
 		If CountKeys() = 1 Then	//Ensure we are Not pressing multiple keys simultaneously (= hotkeys)
 			If (ME_Input >= 32 And ME_Input <= 126) Or (ME_Input = 145) Or (ME_Input = 146) Or (ME_Input >= 160) Then
-				ME_PerformAction(ActiveEditor, "Insert", ME_InputChr)
+				char$ = ME_InputChr
+				If ME_CapsLock Then char = ME_ToggleCase(char)
+				ME_PerformAction(ActiveEditor, "Insert", char)
 			EndIf
 		EndIf
 	Else
@@ -155,4 +153,14 @@ EndFunction
 
 Function ME_IF(condition, true_$, false_$)
 	If condition Then Return true_ Else Return false_
+EndFunction
+
+Function ME_ToggleCapsLock()
+	ME_CapsLock = Not ME_CapsLock
+	'SetLockLed(2, ME_CapsLock)
+EndFunction
+
+Function ME_ToggleCase(char$)
+	a = Asc(char)
+	If (a < 97) Or (a > 122 And a < 224) Then Return Lower(char) Else Return Upper(char)
 EndFunction

@@ -1,5 +1,10 @@
 
 
-T_FILE_CBList	= Translate("CoolBasic file list")
-T_FILE_CBSource	= Translate("CoolBasic source")
-T_FILE_All		= Translate("All files")
+T_FILE_CBList			= Translate("CoolBasic file list")
+T_FILE_CBSource			= Translate("CoolBasic source")
+T_FILE_All				= Translate("All files")
+
+T_STATUS_CountCarets	= Translate("Carets: %")
+T_STATUS_CaretPosition	= Translate("Line: %/% Col: %/%")
+T_STATUS_CapsLockOn		= Translate("Caps Lock ON")
+T_STATUS_CapsLockOff	= Translate("Caps Lock OFF")

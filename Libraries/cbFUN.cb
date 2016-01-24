@@ -1,0 +1,459 @@
+DLLInit("cbFUN.dll")
+
+Function SetWindowText(wnd$,txt$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd)  
+    _DLL_PutString(txt)  
+    _DLL_CallDll("_SetWindowText")  
+    _DLL_DeleteMemBlock()
+EndFunction
+
+Function _GetPixel(x,y)
+    _DLL_InitMemBlock()
+    _DLL_PutInt(x)
+    _DLL_PutInt(y) 
+    _DLL_CallDll("_getpixel")  
+    val=_DLL_GetInt()
+    _DLL_DeleteMemBlock()
+    Return val
+EndFunction
+
+Function GetEnv(p$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(p)   
+    _DLL_CallDll("_getenv")  
+    val$=_DLL_GetString()
+    _DLL_DeleteMemBlock()
+    Return val
+EndFunction
+
+Function TypeStr(stri$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(stri)   
+    _DLL_CallDll("_keybd_event")  
+    _DLL_DeleteMemBlock() 
+EndFunction
+
+Function ShowWindow(_window$,show = 0)
+    _DLL_InitMemBlock()
+    _DLL_PutByte(show)   
+    _DLL_PutString(_window)
+    _DLL_CallDll("HideWindow")  
+    _DLL_DeleteMemBlock() 
+EndFunction
+
+Function DestroyWindow(_window$)
+    _DLL_InitMemBlock()             
+    _DLL_PutString(_window)  
+    _DLL_CallDll("KillProgram")  
+    _DLL_DeleteMemBlock()  
+EndFunction
+
+Function OpenCdTray(open=1)
+    _DLL_InitMemBlock()            
+    _DLL_PutByte(open) 
+    _DLL_CallDll("_OpenCdTray")           
+    _DLL_DeleteMemBlock()                          
+EndFunction
+
+Function FlashWindow(_window$)
+    _DLL_InitMemBlock()      
+    _DLL_PutString(_window) 
+    _DLL_CallDll("_FlashWindow")        
+    _DLL_DeleteMemBlock()                            
+EndFunction
+
+Function SetCursorPos(x,y)    
+    _DLL_InitMemBlock()  
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_CallDll("_SetCursorPos")         
+    _DLL_DeleteMemBlock()                         
+EndFunction
+
+Function MouseEvent(hit,wam=0)
+    _DLL_InitMemBlock()      
+    _DLL_PutInt(hit)
+    _DLL_PutInt(wam)
+    _DLL_CallDll("_MouseEvent")        
+    _DLL_DeleteMemBlock()                         
+EndFunction
+
+Function MoveWindow(_window$,x,y,w,h)
+    _DLL_InitMemBlock()     
+    _DLL_PutString(_window$)
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_PutInt(w)
+    _DLL_PutInt(h)   
+    _DLL_CallDll("_MoveWindow")           
+    _DLL_DeleteMemBlock()                            
+EndFunction
+
+Function _MouseX()
+    _DLL_InitMemBlock(8)      
+    _DLL_CallDll("_GetCursorPos")        
+    lValue1$ = _DLL_GetInt()  
+    lValue2$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue1                   
+EndFunction
+
+Function _MouseY()
+    _DLL_InitMemBlock(8)      
+    _DLL_CallDll("_GetCursorPos")        
+    lValue1$ = _DLL_GetInt()     
+    lValue2$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue2                   
+EndFunction
+
+Function ScreenW()
+    _DLL_InitMemBlock(8)      
+    _DLL_CallDll("_GetSystemMetrics")        
+    lValue1$ = _DLL_GetInt()
+    lValue2$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue1                   
+EndFunction
+
+Function ScreenH()
+    _DLL_InitMemBlock(8)      
+    _DLL_CallDll("_GetSystemMetrics")        
+    lValue1$ = _DLL_GetInt()
+    lValue2$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue2                   
+EndFunction
+
+Function _PutPixel(x,y,pix)
+    _DLL_InitMemBlock(4)    
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_PutInt(pix)
+    _DLL_CallDll("_PutPixel")        
+    lValue$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue                   
+EndFunction
+
+Function MsgBox(txt$, title$, x) //x=ikunavaihtoehto
+    _DLL_InitMemBlock(4)  // Alustetaan muistipala sopivan pituiseksi.
+    _DLL_PutString(txt$)   // Kirjoitetaan parametriksi merkkijono
+    _DLL_PutString(title$)   // Kirjoitetaan parametriksi merkkijono
+    _DLL_PutInt(x)   // Kirjoitetaan parametriksi merkkijono
+    _DLL_CallDll("MSGbox")         // Kutsutaan DLL:n _getenv-funktiota
+EndFunction
+
+Function Beep(hz, ms=1000)//x=hertsi y=aika millisekunteina
+    _DLL_InitMemBlock(4) 
+    _DLL_PutInt(hz) 
+    _DLL_PutInt(ms) 
+    _DLL_CallDll("Piip")         
+EndFunction 
+
+Function HideWindowsTaskBar(hide = 1)//1 piilotus. 0 näkyviin
+    _DLL_InitMemBlock(4)  // Alustetaan muistipala sopivan pituiseksi.
+    _DLL_PutInt(hide)   // Kirjoitetaan parametriksi merkkijono
+    _DLL_CallDll("HideWindowsTaskBar")         // Kutsutaan DLL:n _getenv-funktiota
+EndFunction
+
+Function SwapMouseButton(swap = 1)//1 piilotus. 0 näkyviin
+    _DLL_InitMemBlock()  // Alustetaan muistipala sopivan pituiseksi.
+    _DLL_PutInt(swap)   // Kirjoitetaan parametriksi merkkijono
+    _DLL_CallDll("_SwapMouseButton")         // Kutsutaan DLL:n _getenv-funktiota
+EndFunction
+
+Function GetHwnd(wnd$)
+    _DLL_InitMemBlock()   
+    _DLL_PutString(wnd)
+    _DLL_CallDll("_GetHwnd")        
+    lValue$ = _DLL_GetInt()
+    _DLL_DeleteMemBlock()           
+    Return lValue                   
+EndFunction
+
+Function SetTaskBarAlpha(a)
+    _DLL_InitMemBlock()
+    _DLL_PutInt(a)
+    _DLL_CallDll("SetTaskbarAlpha")
+EndFunction
+
+Function SetWindowAlpha(wnd$,a)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd)
+    _DLL_PutInt(a)
+    _DLL_CallDll("SetWindowAlpha")
+EndFunction
+
+Function SwitchWindow(wnd$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd)
+    _DLL_CallDll("SwitchWindow")
+EndFunction
+
+Function BlockInput(blck=1)
+    _DLL_InitMemBlock()
+    _DLL_PutByte(blck)
+    _DLL_CallDll("_BlockInput")
+EndFunction
+
+Function SetLockLed(butt, mode = 1)
+    _DLL_InitMemBlock()  
+    _DLL_PutInt(butt)
+    _DLL_PutInt(mode)
+    _DLL_CallDll("_SetLockLed")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function GetAscKey(key)
+    _DLL_InitMemBlock()    
+    _DLL_PutInt(key)
+    _DLL_CallDll("_GetKeyState")        
+    lValue1$ = _DLL_GetInt()  
+    _DLL_DeleteMemBlock()           
+    Return lValue1                   
+EndFunction
+
+Function CreateRoundWindow(wnd$,x,y,w,h)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd$)
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_PutInt(w)
+    _DLL_PutInt(h)
+    _DLL_CallDll("_CreateRoundWindow")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function CreateRectRoundWindow(wnd$,x,y,w,h,x2,y2)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd$)
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_PutInt(w)
+    _DLL_PutInt(h)
+    _DLL_PutInt(x2)
+    _DLL_PutInt(y2)
+    _DLL_CallDll("_CreateRoundRectWindow")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function HideDesktopIcons(wnd$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd$)
+    _DLL_CallDll("_HideDesktopIcons")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function ShowCursor(show=1)
+    _DLL_InitMemBlock()
+    _DLL_PutInt(show)
+    _DLL_CallDll("_ShowCursor")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function LockWorkStation()
+    _DLL_InitMemBlock()
+    _DLL_CallDll("_LockWorkStation")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function TextOut(x,y,txt$)
+    _DLL_InitMemBlock()
+    _DLL_PutInt(x)
+    _DLL_PutInt(y)
+    _DLL_PutInt(Len(txt))
+    _DLL_PutString(txt$)
+    _DLL_CallDll("_TextToScreen")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+Function HideMenu(wnd$)
+    _DLL_InitMemBlock()
+    _DLL_PutString(wnd$)
+    _DLL_CallDll("_HideSystemMenu")         
+    _DLL_DeleteMemBlock()    
+EndFunction 
+
+
+
+//DLL KUTSUT by Marcoder
+//=============================================================================
+// CoolBasic DLL
+// by Marcoder
+//=============================================================================
+
+Global gDLLFile$
+
+//=============================================================================
+// Alustetaan dll
+//=============================================================================
+Function DLLInit(_dllFile$)
+    gDLLFile = _dllFile
+EndFunction
+
+
+Global gDLLMemBlock, gDLLMemBlockOffset
+
+//=============================================================================
+// Alustetaan muistipala
+//=============================================================================
+Function _DLL_InitMemBlock(_size = 0)
+    If gDLLMemBlock Then DeleteMEMBlock gDLLMemBlock    
+    gDLLMemBlock = MakeMEMBlock(_size + 4)
+    PokeInt gDLLMemBlock, 0, 0
+    gDLLMemBlockOffset = 4
+EndFunction
+
+
+//=============================================================================
+// Muistipalan tuhoaminen
+//=============================================================================
+Function _DLL_DeleteMemBlock()
+    DeleteMEMBlock gDLLMemBlock
+    gDLLMemBlock = 0
+    gDLLMemBlockOffset = 0
+EndFunction
+
+
+//=============================================================================
+// Kutsutaan DLL:ää
+//=============================================================================
+Function _DLL_CallDll(_method$)
+    lMemSize = MEMBlockSize(gDLLMemBlock)
+    PokeInt gDLLMemBlock, 0, lMemSize
+    CallDLL gDLLFile, _method, gDLLMemBlock
+    gDLLMemBlockOffset = 0
+EndFunction
+
+
+//=============================================================================
+// Muutetaan muistipalan kokoa
+//=============================================================================
+Function _DLL_MemBlockResize(_length)
+    lMemSize = MEMBlockSize(gDLLMemBlock)
+    If gDLLMemBlockOffset + _length > lMemSize Then
+        ResizeMEMBlock gDLLMemBlock, gDLLMemBlockOffset + _length
+    EndIf
+EndFunction
+
+
+//=============================================================================
+// Kirjoitetaan muistipalaan 32-bittinen kokonaisluku
+//=============================================================================
+Function _DLL_PutInt(_value)
+    _DLL_MemBlockResize(4)
+    PokeInt gDLLMemBlock, gDLLMemBlockOffset, _value
+    gDLLMemBlockOffset + 4
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta 32-bittinen kokonaisluku
+//=============================================================================
+Function _DLL_GetInt()
+    lRetVal = PeekInt(gDLLMemBlock, gDLLMemBlockOffset)
+    gDLLMemBlockOffset + 4
+    Return lRetVal
+EndFunction
+
+
+//=============================================================================
+// Kirjoitetaan muistipalaan 32-bittinen liukuluku
+//=============================================================================
+Function _DLL_PutFloat(_value#)
+    _DLL_MemBlockResize(4)
+    PokeFloat gDLLMemBlock, gDLLMemBlockOffset, _value
+    gDLLMemBlockOffset + 4
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta 32-bittinen liukuluku
+//=============================================================================
+Function _DLL_GetFloat#()
+    lRetVal# = PeekFloat(gDLLMemBlock, gDLLMemBlockOffset)
+    gDLLMemBlockOffset + 4
+    Return lRetVal
+EndFunction
+
+
+//=============================================================================
+// Kirjoitetaan muistipalaan 8-bittinen kokonaisluku
+//=============================================================================
+Function _DLL_PutByte(_value)
+    _DLL_MemBlockResize(1)
+    PokeByte gDLLMemBlock, gDLLMemBlockOffset, _value
+    gDLLMemBlockOffset + 1
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta 8-bittinen kokonaisluku
+//=============================================================================
+Function _DLL_GetByte()
+    lRetVal = PeekByte(gDLLMemBlock, gDLLMemBlockOffset)
+    gDLLMemBlockOffset + 1
+    Return lRetVal
+EndFunction
+
+
+//=============================================================================
+// Kirjoitetaan muistipalaan merkkijono
+//=============================================================================
+Function _DLL_PutString(_value$)
+    lStrLen = Len(_value)
+    _DLL_MemBlockResize(lStrLen + 4)
+    PokeInt gDLLMemBlock, gDLLMemBlockOffset, lStrLen
+    gDLLMemBlockOffset + 4
+    For i = 1 To lStrLen
+        PokeByte gDLLMemBlock, gDLLMemBlockOffset, Asc(Mid(_value, i, 1))
+        gDLLMemBlockOffset + 1
+    Next i
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta merkkiojono
+//=============================================================================
+Function _DLL_GetString$()
+    lStrLen = _DLL_GetInt()
+    lRetVal$ = ""
+    For i = 1 To lStrLen
+        c = _DLL_GetByte()
+        If c > 0 Then lRetVal = lRetVal + Chr(c)
+    Next i
+    Return lRetVal
+EndFunction
+
+
+//=============================================================================
+// Kirjoitetaan muistipalaan 16-bittinen kokonaisluku
+//=============================================================================
+Function _DLL_PutShort(_value)
+    _DLL_MemBlockResize(2)
+    PokeShort gDLLMemBlock, gDLLMemBlockOffset, _value
+    gDLLMemBlockOffset + 2
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta 16-bittinen etumerkillinen kokonaisluku
+//=============================================================================
+Function _DLL_GetShort()
+    lRetVal = PeekShort(gDLLMemBlock, gDLLMemBlockOffset)
+    If lRetVal > 32768 Then lRetVal = lRetVal - 65536
+    gDLLMemBlockOffset + 2
+    Return lRetVal
+EndFunction
+
+
+//=============================================================================
+// Luetaan muistipalasta 16-bittinen etumerkitön kokonaisluku
+//=============================================================================
+Function _DLL_GetUShort()
+    lRetVal = PeekShort(gDLLMemBlock, gDLLMemBlockOffset)
+    gDLLMemBlockOffset + 2
+    Return lRetVal
+EndFunction

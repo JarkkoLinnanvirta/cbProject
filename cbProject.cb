@@ -62,6 +62,7 @@ Global Draw_timer
 Function Draw()
 	EditorDraw(ActiveEditor, 10,40)
 	DrawEditorTabs(9,15)
+	DrawStatusBar()
 	DebugText(300,ScreenHeight()-ME_ChrH, "Total Time: "+(Timer()-Draw_timer))
 	DrawScreen
 	Draw_timer = Timer()
@@ -193,6 +194,37 @@ Function DebugText(x,y, txt$)
 	Text x,y, txt
 EndFunction
 
+Function DrawStatusBar()
+	width	= ScreenWidth()
+	height	= ME_ChrH+6
+	x		= 0
+	y		= ScreenHeight()-height
+	Color 240,240,240
+	Box x,y,width,height
+	Color 215,215,215
+	Line x,y,x+width-1,y
+	Color cbBlack
+	
+	If EditorCountCarets(ActiveEditor) > 1 Then
+		caret_text$ = _t(T_STATUS_CountCarets, EditorCountCarets(ActiveEditor))
+	Else
+		line_number = EditorCaretLineNumber(ActiveEditor)
+		position	= EditorCaretPosition(ActiveEditor)
+		count_lines	= EditorCountLines(ActiveEditor)
+		line_length	= Len(EditorGetLine(ActiveEditor, line_number))+1
+		caret_text = _t(T_STATUS_CaretPosition, line_number+"%"+count_lines+"%"+position+"%"+line_length)
+	EndIf
+	Text x+width-1-TextWidth(caret_text), y+3, caret_text
+	
+	If ME_CapsLock Then
+		Color cbBlack
+		Text x,y+3, _t(T_STATUS_CapsLockOn)
+	Else
+		Color 128,128,128
+		Text x,y+3, _t(T_STATUS_CapsLockOff)
+	EndIf
+	
+EndFunction
 
 
 

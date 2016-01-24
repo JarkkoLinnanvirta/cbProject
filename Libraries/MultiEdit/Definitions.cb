@@ -18,6 +18,7 @@ Global ME_FlagPosition								//Starting And
 Global ME_FlagEnd									//ending positions of the flag. Can also mark the whole Line, If CBCombiler didn't give a detail String specifyin the problematic section of the Line
 Global ME_ExportedClipboard$
 Global ME_CutActionLog								//If True, Next action performed in an editor will be forced To start a New Log entry.
+Global ME_CapsLock
 
 
 Type ME_Editor
@@ -26,6 +27,7 @@ Type ME_Editor
 	Field first_line_id
 	Field first_visible_line_number		As Short
 	Field count_lines					As Short
+	Field count_carets					As Short
 	Field current_action_log_id
 	
 	//Settings

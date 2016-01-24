@@ -202,7 +202,28 @@ Function EditorFlag(editor_id, line_number=0, specific_word$="")
 	Next row
 EndFunction
 
+Function EditorCountCarets(editor_id)
+	editor.ME_Editor	= editor_id
+	Return editor\count_carets
+EndFunction
 
+Function EditorCountLines(editor_id)
+	editor.ME_Editor	= editor_id
+	Return editor\count_lines
+EndFunction
 
+Function EditorCaretLineNumber(editor_id)
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then
+			row.ME_Line = caret\line_id
+			Return row\line_number+1
+		EndIf
+	Next caret
+EndFunction
 
+Function EditorCaretPosition(editor_id)
+	For caret.ME_Caret = Each ME_Caret
+		If caret\editor_id = editor_id Then Return caret\position+1
+	Next caret
+EndFunction
 

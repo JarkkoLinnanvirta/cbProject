@@ -1,4 +1,5 @@
 Include "Libraries\cbAPI.cb"				//This must be included Before the MultiEdit.cb file For GetClipboardText() To work correctly.
+Include "Libraries\cbFUN.cb"
 Include "Libraries\Cursors.cb"
 Include "Libraries\GetWords2.cb"
 Include "Libraries\HotKey.cb"

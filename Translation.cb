@@ -3,7 +3,7 @@ Function _t(translation_id, variables$="")
 	translation.TranslationRecord = translation_id
 	result$ = ""
 	For i = 1 To CountWords2(translation\translation, "%")
-		If result Then result = result + GetWord2(variables, i, "%")
+		If result Then result = result + GetWord2(variables, i-1, "%")
 		result = result + GetWord2(translation\translation, i, "%")
 	Next i
 	Return result
@@ -18,7 +18,8 @@ EndFunction
 
 
 //Translation globals
-Global T_FILE_CBList,		T_FILE_CBSource,	T_FILE_All
+Global T_FILE_CBList,			T_FILE_CBSource,			T_FILE_All
+Global T_STATUS_CountCarets,	T_STATUS_CaretPosition,		T_STATUS_CapsLockOn,	T_STATUS_CapsLockOff
 
 
 

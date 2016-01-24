@@ -9,17 +9,21 @@ Function ME_DeleteCarets(editor_id)
 	For caret.ME_Caret = Each ME_Caret
 		If caret\editor_id = editor_id Then Delete caret
 	Next caret
+	editor.ME_Editor	= editor_id
+	editor\count_carets	= 0
 EndFunction
 
 
 Function ME_NewCaret(editor_id, line_id, position)
 	Debug("me_newcaret start")
-	caret.ME_Caret	= New(ME_Caret)
+	caret.ME_Caret		= New(ME_Caret)
+	editor.ME_Editor	= editor_id
 	caret\id			= ConvertToInteger(caret)
-	caret\editor_id	= editor_id
+	caret\editor_id		= editor_id
 	caret\line_id		= line_id
 	caret\position		= position
-	caret\lean_position= position
+	caret\lean_position	= position
+	editor\count_carets + 1
 	Debug("me_newcaret end")
 	Return caret\id
 EndFunction

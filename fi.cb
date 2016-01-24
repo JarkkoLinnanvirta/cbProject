@@ -1,4 +1,9 @@
 
-T_FILE_CBList	= Translate("CoolBasic-tiedostolista")
-T_FILE_CBSource	= Translate("CoolBasic-lähdekoodi")
-T_FILE_All		= Translate("Kaikki tiedostot")
+T_FILE_CBList			= Translate("CoolBasic-tiedostolista")
+T_FILE_CBSource			= Translate("CoolBasic-lähdekoodi")
+T_FILE_All				= Translate("Kaikki tiedostot")
+
+T_STATUS_CountCarets	= Translate("Kursoreita: %")
+T_STATUS_CaretPosition	= Translate("Rivi: %/% Sijainti: %/%")
+T_STATUS_CapsLockOff	= Translate("Caps Lock pois")
+T_STATUS_CapsLockOn		= Translate("Caps Lock PÄÄLLÄ")
